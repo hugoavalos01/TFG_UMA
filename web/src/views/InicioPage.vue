@@ -35,10 +35,13 @@
         </button>
       </div>
     </div>
+    <button @click="moverImagenes" class="clasificar-bttn">Clasificar imagenes ya</button>
   </div>
 </template>
 
 <script>
+import uploadService from "@/services/uploadService";
+
 export default {
   data() {
     return {
@@ -66,21 +69,33 @@ export default {
         this.file = files[0];
       }
     },
-    onSubmit() {
+    async onSubmit() {
       if (this.file) {
         const formData = new FormData();
         formData.append("file", this.file);
 
-        // Aquí enviarías formData a tu servidor backend
-        console.log("File submitted: ", this.file.name);
+        try {
+          const response = await uploadService.uploadFile(formData);
+          console.log("File uploaded successfully:", response.data);
 
-        // Resetear formulario
-        this.file = null;
-        this.$refs.fileInput.value = null;
+          // Resetear formulario
+          this.file = null;
+          this.$refs.fileInput.value = null;
+        } catch (error) {
+          console.error("Error uploading file:", error);
+        }
+      }
+    },
+    async moverImagenes() {
+      try {
+        const response = await uploadService.moveImages();
+        console.log("Imagenes movidas correctamente:", response.data);
+      } catch (error) {
+        console.error("Error moviendo imagenes:", error);
       }
     },
     isImage(file) {
-      return file && file.type.startsWith('image/');
+      return file && file.type.startsWith("image/");
     },
   },
 };
@@ -157,5 +172,17 @@ export default {
 
 .submit-button:disabled {
   cursor: not-allowed;
+}
+.clasificar-bttn{
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s; /* Transición para el color de fondo */
+  background-color: #42b983;
+  margin-top: 20px;
+  border: 2px solid #3a9b76; /* Borde para el botón "Escoger un archivo" */
+
+
 }
 </style>

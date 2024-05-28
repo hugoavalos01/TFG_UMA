@@ -3,32 +3,52 @@ package com.example.tfgapp.Controller;
 import com.example.tfgapp.Entity.Imagen;
 import com.example.tfgapp.Service.MinIOService;
 import com.example.tfgapp.Service.ImagenService;
+import com.example.tfgapp.Utils.ScheduledTasks;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Controlador para la gestión de archivos en la aplicación.
+ */
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class Controller {
 
     private final ImagenService imagenService;
+    private final MinIOService minioService;
+    private final ScheduledTasks scheduledTasks;
 
-    @Autowired
-    private MinIOService minioService;
+    // Mapa que mapea extensiones de archivo a tipos de archivos.
+    private static final Map<String, MediaType> MEDIA_TYPE_MAP = new HashMap<>();
+    static {
+        MEDIA_TYPE_MAP.put("jpg", MediaType.IMAGE_JPEG);
+        MEDIA_TYPE_MAP.put("jpeg", MediaType.IMAGE_JPEG);
+        MEDIA_TYPE_MAP.put("png", MediaType.IMAGE_PNG);
+        MEDIA_TYPE_MAP.put("zip", MediaType.APPLICATION_OCTET_STREAM);
+    }
 
     /**
-     * Sube un archivo al bucket de MinIO
+     * Sube un archivo al bucket de MinIO.
      *
-     * @param file
-     * @return
+     * @param file Archivo a subir.
+     * @return Mensaje indicando que el archivo se ha subido correctamente.
      */
-    @PostMapping("/upload")
+    @PostMapping("/uploadArchivo")
     public String uploadFile(@RequestParam("file") MultipartFile file) {
-        String bucketName = "sin-clasificar"; // Nombre del cubo donde se almacenan las imagenes pendientes de clasificar
+        String bucketName = "sin-clasificar"; // Nombre del cubo donde se almacenan las imágenes pendientes de clasificar
         String fileName = file.getOriginalFilename();
         minioService.uploadFile(bucketName, fileName, file);
         imagenService.saveAnotado(fileName);
@@ -36,23 +56,81 @@ public class Controller {
     }
 
     /**
-     * Prueba guardar informacion de imagen en mongodb
+     * Descarga un archivo del bucket de MinIO.
      *
-     * @param imagen
+     * @param fileName Nombre del archivo a descargar.
+     * @return Respuesta con los bytes del archivo y los encabezados adecuados para la descarga.
      */
-    @PostMapping("/save")
+    @GetMapping("/downloadFile/{fileName}")
+    public ResponseEntity<byte[]> downloadFile(@PathVariable String fileName) {
+        String bucketName = "sin-clasificar"; // Nombre del cubo de donde se descargan los archivos
+
+        try {
+            InputStream fileInputStream = minioService.downloadFile(bucketName, fileName);
+            byte[] fileBytes = fileInputStream.readAllBytes();
+
+            MediaType mediaType = getMediaTypeForFileName(fileName);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(mediaType);
+            headers.setContentDispositionFormData("attachment", fileName);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(fileBytes);
+        } catch (IOException e) {
+            // Captura la excepción de IOException y devuelve una respuesta de error al cliente
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar el archivo: " + e.getMessage()).getBytes());
+        }
+    }
+
+    /**
+     * Mueve las imágenes del bucket "sin-clasificar" al bucket "clasificado".
+     * Este método es invocado al recibir una solicitud POST en "/api/moveImages".
+     *
+     * @return ResponseEntity con un mensaje indicando el resultado de la operación.
+     */
+    @PostMapping("/moveImages")
+    public ResponseEntity<String> moveImages() {
+        try {
+            scheduledTasks.moveImagesScheduled();
+            return ResponseEntity.ok("Imágenes movidas exitosamente.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al mover imágenes: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Guarda la información de una imagen en MongoDB.
+     *
+     * @param imagen Información de la imagen a guardar.
+     */
+    @PostMapping("/saveInfo")
     public void save(@RequestBody Imagen imagen) {
         imagenService.save(imagen);
     }
 
     /**
-     * Prueba obtener todos los registros de imagenes
+     * Obtiene todos los registros de imágenes.
      *
-     * @return
+     * @return Lista de todas las imágenes almacenadas.
      */
-    @GetMapping("/imagenes")
+    @GetMapping("/infoImagenes")
     public List<Imagen> getAll() {
         return imagenService.findAll();
     }
 
+    /**
+     * Obtiene el tipo de archivo correspondiente a partir del nombre del archivo.
+     *
+     * @param fileName Nombre del archivo.
+     * @return Tipo de medio correspondiente al archivo.
+     */
+    private MediaType getMediaTypeForFileName(String fileName) {
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        return MEDIA_TYPE_MAP.getOrDefault(extension, MediaType.APPLICATION_OCTET_STREAM);
+    }
 }
