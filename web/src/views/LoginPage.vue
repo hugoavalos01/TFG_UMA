@@ -27,7 +27,7 @@ export default {
     login() {
       // Perform login logic here
       // You can access the entered username and password using this.username and this.password
-      this.$router.push({ path: "/" });
+      this.$router.push({ name: "Inicio"});
     },
   },
 };

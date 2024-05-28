@@ -1,7 +1,7 @@
 <template>
   <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/inicio">Inicio</router-link> |
+    <router-link to="/inicio">About</router-link>
   </nav>
   <router-view/>
 </template>
@@ -10,12 +10,16 @@
 export default {
   created() {
     console.log('App created');
-    this.$router.push({ path: '/login' })
+    this.$router.push({ path: '/inicio' })
   }
 }
 </script>
 
 <style>
+@import '@fortawesome/fontawesome-free/css/all.css';
+
+
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
