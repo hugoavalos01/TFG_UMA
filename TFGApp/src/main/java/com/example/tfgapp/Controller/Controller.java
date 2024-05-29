@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.tfgapp.Utils.FileUtil.createTextFile;
+import static com.example.tfgapp.Utils.FileUtil.createZipFile;
+
 /**
  * Controlador para la gestión de archivos en la aplicación.
  */
@@ -33,6 +36,7 @@ public class Controller {
 
     // Mapa que mapea extensiones de archivo a tipos de archivos.
     private static final Map<String, MediaType> MEDIA_TYPE_MAP = new HashMap<>();
+
     static {
         MEDIA_TYPE_MAP.put("jpg", MediaType.IMAGE_JPEG);
         MEDIA_TYPE_MAP.put("jpeg", MediaType.IMAGE_JPEG);
@@ -66,24 +70,35 @@ public class Controller {
         String bucketName = "sin-clasificar"; // Nombre del cubo de donde se descargan los archivos
 
         try {
+            // Descargar la imagen del bucket
             InputStream fileInputStream = minioService.downloadFile(bucketName, fileName);
             byte[] fileBytes = fileInputStream.readAllBytes();
 
-            MediaType mediaType = getMediaTypeForFileName(fileName);
+            // Obtener información asociada al nombre del archivo (por ejemplo, de MongoDB)
+            String fileMetadata = imagenService.writeMetadataToFile(fileName);
 
+            // Crear un archivo de texto con la información y los bytes del archivo original
+            byte[] textBytes = createTextFile(fileMetadata);
+
+            // Combinar los bytes del archivo de texto y los bytes del archivo original en un solo archivo ZIP
+            byte[] zipBytes = createZipFile(fileName, fileBytes, textBytes);
+
+            // Configurar las cabeceras de la respuesta para la descarga del archivo ZIP
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(mediaType);
-            headers.setContentDispositionFormData("attachment", fileName);
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", fileName + ".zip");
 
+            // Devolver la respuesta con el archivo ZIP
             return ResponseEntity.ok()
                     .headers(headers)
-                    .body(fileBytes);
+                    .body(zipBytes);
         } catch (IOException e) {
-            // Captura la excepción de IOException y devuelve una respuesta de error al cliente
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(("Error al descargar el archivo: " + e.getMessage()).getBytes());
         }
     }
+
 
     /**
      * Mueve las imágenes del bucket "sin-clasificar" al bucket "clasificado".

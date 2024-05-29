@@ -5,4 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 @org.springframework.stereotype.Repository
 public interface ImagenRepository extends MongoRepository<Imagen, String> {
+    Imagen findByPathMinIO(String pathMinIO);
 }
