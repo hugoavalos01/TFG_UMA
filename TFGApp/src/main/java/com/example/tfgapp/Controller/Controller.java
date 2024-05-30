@@ -67,7 +67,7 @@ public class Controller {
      */
     @GetMapping("/downloadFile/{fileName}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable String fileName) {
-        String bucketName = "sin-clasificar"; // Nombre del cubo de donde se descargan los archivos
+        String bucketName = "clasificado"; // Nombre del cubo de donde se descargan los archivos
 
         try {
             // Descargar la imagen del bucket

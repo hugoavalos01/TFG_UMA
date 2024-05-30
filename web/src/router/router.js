@@ -1,8 +1,14 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import LoginPage from '../views/LoginPage.vue'
+import ClasificarPage from '@/views/ClasificarPage.vue'
 import InicioPage from '@/views/InicioPage.vue'
 
 const routes = [
+  {
+    path: '/clasificar',
+    name: 'Clasificar',
+    component: ClasificarPage
+  },
   {
     path: '/inicio',
     name: 'Inicio',

@@ -1,24 +1,26 @@
 <template>
-  <nav>
-    <router-link to="/inicio">Inicio</router-link> |
-    <router-link to="/inicio">About</router-link>
-  </nav>
-  <router-view/>
+  <div id="app">
+    <div class="content">
+      <router-view/>
+    </div>
+  </div>
 </template>
 
 <script>
+
 export default {
   created() {
     console.log('App created');
-    this.$router.push({ path: '/inicio' })
+    this.$router.push({ path: '/login' })
+  },
+  components: {
+    
   }
 }
 </script>
 
 <style>
 @import '@fortawesome/fontawesome-free/css/all.css';
-
-
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -28,16 +30,7 @@ export default {
   color: #2c3e50;
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
+.content {
+  margin-top: 60px; /* Ajusta este valor según la altura de tu navbar */
 }
 </style>
