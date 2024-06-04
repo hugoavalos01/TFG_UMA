@@ -5,11 +5,11 @@
       <h2>Iniciar sesión</h2>
       <form>
         <div class="user-box">
-          <input type="text" name="" required="" />
+          <input type="text" name="" />
           <label>Usuario</label>
         </div>
         <div class="user-box">
-          <input :type="passwordFieldType" name="" id="password" required="" />
+          <input :type="passwordFieldType" name="" id="password" />
           <label>Contraseña</label>
           <span class="password-toggle-icon" @click="togglePasswordVisibility" v-if="isPasswordVisible"
             ><i
@@ -30,6 +30,8 @@
 
 <script>
 import NavbarTop from "@/components/NavbarTop.vue";
+import authServices from "@/services/authService";
+
 export default {
   components: { NavbarTop },
   computed: {
@@ -50,11 +52,19 @@ export default {
         this.passwordFieldType === "password" ? "text" : "password";
       console.log(this.isPasswordVisible);
     },
-    login() {
-      // Perform login logic here
-      // You can access the entered username and password using this.username and this.password
-      this.$router.push({ name: "Inicio" });
-    },
+    async login() {
+    try {
+        const response = await authServices.login();
+        console.log(response) // Espera a que el inicio de sesión se complete
+        // Redirecciona al usuario a la página de inicio
+        localStorage.setItem("usuario", true);
+        this.$router.push({ name: "Inicio" });
+    } catch (error) {
+        // Maneja cualquier error que ocurra durante el inicio de sesión
+        console.error("Error en el inicio de sesión");
+        // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
+    }
+}
   },
 };
 </script>
