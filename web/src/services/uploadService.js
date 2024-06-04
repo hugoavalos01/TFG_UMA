@@ -10,6 +10,9 @@ const uploadService = {
     },
     moveImages: () => {
         return instance.post('/moveImages');
+    },
+    getImagenes: () => {
+        return instance.get('/classified');
     }
 };
 

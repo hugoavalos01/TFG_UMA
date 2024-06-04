@@ -44,6 +44,19 @@ public class Controller {
         MEDIA_TYPE_MAP.put("zip", MediaType.APPLICATION_OCTET_STREAM);
     }
 
+    @GetMapping("/classified")
+    public ResponseEntity<List<String>> listClassifiedFiles() {
+        String bucketName = "clasificado";
+
+        try {
+            List<String> fileNames = minioService.listFiles(bucketName);
+            return ResponseEntity.ok(fileNames);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
     /**
      * Sube un archivo al bucket de MinIO.
      *

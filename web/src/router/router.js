@@ -2,12 +2,18 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import LoginPage from '../views/LoginPage.vue'
 import ClasificarPage from '@/views/ClasificarPage.vue'
 import InicioPage from '@/views/InicioPage.vue'
+import ValidarPage from '@/views/ValidarPage.vue'
 
 const routes = [
   {
     path: '/clasificar',
     name: 'Clasificar',
     component: ClasificarPage
+  },
+  {
+    path: '/validar',
+    name: 'Validar',
+    component: ValidarPage
   },
   {
     path: '/inicio',

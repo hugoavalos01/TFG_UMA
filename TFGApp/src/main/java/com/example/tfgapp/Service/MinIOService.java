@@ -1,10 +1,8 @@
 package com.example.tfgapp.Service;
 
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
 import io.minio.errors.MinioException;
+import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Esta clase de servicio proporciona métodos para cargar y descargar archivos en el almacenamiento MinIO.
@@ -22,6 +22,18 @@ public class MinIOService {
 
     @Autowired
     private MinioClient minioClient;
+
+    public List<String> listFiles(String bucketName) throws Exception {
+        List<String> fileNames = new ArrayList<>();
+
+        Iterable<Result<Item>> objects = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucketName).build());
+        for (Result<Item> result : objects) {
+            Item item = result.get();
+            fileNames.add(item.objectName());
+        }
+
+        return fileNames;
+    }
 
     /**
      * Sube un archivo al bucket especificado en el almacenamiento MinIO.
