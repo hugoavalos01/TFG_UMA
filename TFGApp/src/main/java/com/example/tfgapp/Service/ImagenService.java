@@ -46,8 +46,7 @@ public class ImagenService {
                 minioService.uploadClassifiedFile(fileName);
 
                 // Guardar información de la imagen en el repositorio
-                Imagen imagen = new Imagen(fileName, commandOutput);
-                imagenRepository.save(imagen);
+                saveClassifiedImagen(fileName);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to classify images", e);
@@ -86,8 +85,26 @@ public class ImagenService {
     }
 
 
-    public void save(Imagen imagen) {
+    public void saveClassifiedImagen(String nombre) throws IOException {
+        int dotIndex = nombre.lastIndexOf('.');
+        nombre = nombre.substring(0, dotIndex);
+        String anotaciones = ".\\yolov5\\results\\total\\labels\\"+nombre+".txt";
+        String anotacion = readFirstWord(anotaciones);
+        Imagen imagen = new Imagen(nombre, anotacion);
         imagenRepository.save(imagen);
+    }
+
+    private static String readFirstWord(String filePath) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line = br.readLine(); // Leer la primera línea
+            if (line != null && !line.isEmpty()) {
+                String[] words = line.split("\\s+"); // Dividir la línea en palabras
+                if (words.length > 0) {
+                    return words[0]; // Devolver la primera palabra
+                }
+            }
+        }
+        return null; // Si el archivo está vacío o no contiene palabras
     }
 
     public List<Imagen> findAll() {

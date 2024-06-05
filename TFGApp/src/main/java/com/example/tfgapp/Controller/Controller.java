@@ -136,11 +136,12 @@ public class Controller {
      * Guarda la información de una imagen en MongoDB.
      *
      * @param imagen Información de la imagen a guardar.
+     *               @PostMapping("/saveInfo")
+     *     public void save(@RequestBody Imagen imagen) {
+     *         imagenService.save(imagen);
+     *     }
      */
-    @PostMapping("/saveInfo")
-    public void save(@RequestBody Imagen imagen) {
-        imagenService.save(imagen);
-    }
+
 
     /**
      * Obtiene todos los registros de imágenes.
