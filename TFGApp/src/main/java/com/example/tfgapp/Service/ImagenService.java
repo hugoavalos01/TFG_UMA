@@ -2,6 +2,7 @@ package com.example.tfgapp.Service;
 
 import com.example.tfgapp.Entity.Imagen;
 import com.example.tfgapp.Repository.ImagenRepository;
+import com.example.tfgapp.Utils.DirectoryDeleter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +17,9 @@ public class ImagenService {
 
     private final MinIOService minioService;
 
-    public void clasificarImagenes() {
+    public void clasificarImagenes() throws IOException {
         String sourceBucket = "sin-clasificar";
-        String targetBucket = "clasificado";
+        borrarDirectorios();
 
         try {
             // Listar las imágenes en el bucket "sin-clasificar"
@@ -51,6 +52,15 @@ public class ImagenService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to classify images", e);
         }
+    }
+
+    private void borrarDirectorios() throws IOException {
+        String rutaImagenes = ".\\yolov5\\results";
+        String rutaResultados = ".\\yolov5\\images";
+
+        DirectoryDeleter directoryDeleter = new DirectoryDeleter();
+        directoryDeleter.borrarContenidoDirectorio(rutaImagenes);
+        directoryDeleter.borrarContenidoDirectorio(rutaResultados);
     }
 
 

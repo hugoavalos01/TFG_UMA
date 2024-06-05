@@ -68,8 +68,6 @@ public class Controller {
         String bucketName = "sin-clasificar"; // Nombre del cubo donde se almacenan las imágenes pendientes de clasificar
         String fileName = file.getOriginalFilename();
         minioService.uploadFile(bucketName, fileName, file);
-        //imagenService.saveAnotado(fileName);
-        //imagenService.clasificarImagenes();
         return  "Archivo subido con éxito: " + fileName;
     }
 

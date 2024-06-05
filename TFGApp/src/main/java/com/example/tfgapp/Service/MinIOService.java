@@ -1,6 +1,7 @@
 package com.example.tfgapp.Service;
 
 import io.minio.*;
+import io.minio.errors.ErrorResponseException;
 import io.minio.errors.MinioException;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,38 @@ public class MinIOService {
      * @param file       El MultipartFile que contiene los datos del archivo a cargar.
      */
     public void uploadFile(String bucketName, String fileName, MultipartFile file) {
+        if (bucketName.equals("sin-clasificar")) {
+            try {
+                // Comprobar si el archivo ya existe en el bucket "clasificado"
+                minioClient.statObject(StatObjectArgs.builder()
+                        .bucket("clasificado")
+                        .object(fileName)
+                        .build());
+
+                // Si llegamos aquí, significa que el archivo ya existe, por lo que no se podrá clasificar luego
+                throw new RuntimeException("El archivo ya está clasificado: " + fileName);
+            } catch (ErrorResponseException e) {
+                if (e.errorResponse().code().equals("NoSuchKey")) {
+                    // Si el error es NoSuchKey, significa que el archivo no existe, y podemos continuar
+                    System.out.println("El archivo no existe en el bucket 'clasificado'. Procediendo a subir.");
+                } else {
+                    // Si el error es otro, lanzar la excepción
+                    e.printStackTrace();
+                    System.out.println("Error al verificar el archivo en el bucket 'clasificado': " + e.getMessage());
+                    return;
+                }
+            } catch (MinioException e) {
+                e.printStackTrace();
+                System.out.println("Error al verificar el archivo en el bucket 'clasificado': " + e.getMessage());
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+                return;
+            }
+        }
         try {
+            // Subir el archivo al bucket correspondiente
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucketName)
                     .object(fileName)
