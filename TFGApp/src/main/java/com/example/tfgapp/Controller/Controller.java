@@ -4,6 +4,9 @@ import com.example.tfgapp.Entity.Imagen;
 import com.example.tfgapp.Service.MinIOService;
 import com.example.tfgapp.Service.ImagenService;
 import com.example.tfgapp.Utils.ScheduledTasks;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
+import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,13 +51,23 @@ public class Controller {
     @GetMapping("/classified")
     public ResponseEntity<List<String>> listClassifiedFiles() {
         String bucketName = "clasificado";
+        List<String> fileUrls = new ArrayList<>();
 
         try {
             List<String> fileNames = minioService.listFiles(bucketName);
-            return ResponseEntity.ok(fileNames);
+
+            for (String fileName : fileNames) {
+                String url = minioService.getPresignedUrl(bucketName, fileName);
+                fileUrls.add(url);
+            }
+
+            return ResponseEntity.ok(fileUrls);
+        } catch (MinioException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(500).body(null);
         }
     }
 

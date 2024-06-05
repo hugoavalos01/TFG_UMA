@@ -3,6 +3,7 @@ package com.example.tfgapp.Service;
 import io.minio.*;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.MinioException;
+import io.minio.http.Method;
 import io.minio.messages.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Esta clase de servicio proporciona métodos para cargar y descargar archivos en el almacenamiento MinIO.
@@ -196,6 +199,21 @@ public class MinIOService {
         } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException("Error al mover la imagen: " + e.getMessage());
+        }
+    }
+
+    public String getPresignedUrl(String bucketName, String objectName) throws MinioException {
+        try {
+            // Genera una URL prefirmada válida para descargar el objeto
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .method(Method.GET) // Especifica el método HTTP
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new MinioException("Error al generar URL prefirmada para el objeto: " + e.getMessage());
         }
     }
 }

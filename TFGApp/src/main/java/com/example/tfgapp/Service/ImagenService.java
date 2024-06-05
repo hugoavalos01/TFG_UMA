@@ -48,6 +48,7 @@ public class ImagenService {
 
                 // Guardar información de la imagen en el repositorio
                 saveClassifiedImagen(fileName);
+                borrarDirectorios();
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to classify images", e);
