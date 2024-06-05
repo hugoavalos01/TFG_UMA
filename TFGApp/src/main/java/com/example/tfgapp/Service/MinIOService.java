@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -22,6 +24,45 @@ public class MinIOService {
 
     @Autowired
     private MinioClient minioClient;
+
+    public String downloadTempFile(String bucketName, String fileName) throws Exception {
+        String filePath =  ".\\yolov5\\images\\" + fileName; // Ruta temporal para guardar el archivo
+        minioClient.downloadObject(
+                DownloadObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(fileName)
+                        .filename(filePath)
+                        .build()
+        );
+        return filePath;
+    }
+    public void uploadClassifiedFile(String fileName) {
+        String bucketName = "clasificado";
+        String filePath = ".\\yolov5\\results\\total\\"+fileName;
+        File file = new File(filePath);
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .stream(fileInputStream, file.length(), -1)
+                    .contentType("image/jpeg") // Cambia esto según el tipo de archivo
+                    .build());
+            System.out.println("Archivo subido con éxito: " + fileName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error al subir el archivo: " + e.getMessage());
+        }
+    }
+
+    public void deleteFile(String fileName) throws Exception {
+        String bucketName = "sin-clasificar";
+        minioClient.removeObject(
+                RemoveObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(fileName)
+                        .build()
+        );
+    }
 
     public List<String> listFiles(String bucketName) throws Exception {
         List<String> fileNames = new ArrayList<>();
@@ -83,7 +124,16 @@ public class MinIOService {
         }
     }
 
-    public void moveImage(String sourceBucket, String destinationBucket, String fileName) throws IOException {
+    /**
+     * Mueve la imagen de un bucket a otro
+     * @param sourceBucket
+     * @param destinationBucket
+     * @param fileName
+     * @throws IOException
+     */
+    public void moveImage(String fileName) throws IOException {
+        String sourceBucket = "sin-clasificar";
+        String destinationBucket = "clasificado";
         try {
             // Descargar la imagen del bucket de origen
             InputStream inputStream = minioClient.getObject(

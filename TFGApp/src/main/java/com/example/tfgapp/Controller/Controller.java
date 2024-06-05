@@ -68,8 +68,9 @@ public class Controller {
         String bucketName = "sin-clasificar"; // Nombre del cubo donde se almacenan las imágenes pendientes de clasificar
         String fileName = file.getOriginalFilename();
         minioService.uploadFile(bucketName, fileName, file);
-        imagenService.saveAnotado(fileName);
-        return "File uploaded successfully: " + fileName;
+        //imagenService.saveAnotado(fileName);
+        //imagenService.clasificarImagenes();
+        return  "Archivo subido con éxito: " + fileName;
     }
 
     /**
@@ -120,14 +121,14 @@ public class Controller {
      * @return ResponseEntity con un mensaje indicando el resultado de la operación.
      */
     @PostMapping("/moveImages")
-    public ResponseEntity<String> moveImages() {
+    public ResponseEntity<String> clasificar() {
         try {
-            scheduledTasks.moveImagesScheduled();
-            return ResponseEntity.ok("Imágenes movidas exitosamente.");
+            scheduledTasks.clasificarImagenesScheduled();
+            return ResponseEntity.ok("Imágenes clasificadas con éxito.");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al mover imágenes: " + e.getMessage());
+                    .body("Error al clasificar las imágenes: " + e.getMessage());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.tfgapp.Utils;
 
+import com.example.tfgapp.Service.ImagenService;
 import com.example.tfgapp.Service.MinIOService;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
@@ -20,19 +21,19 @@ public class ScheduledTasks {
 
     private final MinIOService minIOService;
     private final MinioClient minioClient;
+    private final ImagenService imagenService;
 
-    public ScheduledTasks(MinIOService minIOService, MinioClient minioClient) {
+    public ScheduledTasks(MinIOService minIOService, MinioClient minioClient, ImagenService imagenService) {
         this.minIOService = minIOService;
         this.minioClient = minioClient;
+        this.imagenService = imagenService;
     }
 
     @Scheduled(cron = "0 0 22 * * *") // Ejecutar a las 22:00 todos los días
-    public void moveImagesScheduled() {
+    public void clasificarImagenesScheduled() {
         try {
             List<String> imageNames = listAllImages("sin-clasificar");
-            for (String imageName : imageNames) {
-                minIOService.moveImage("sin-clasificar", "clasificado", imageName);
-            }
+            imagenService.clasificarImagenes();
         } catch (IOException | MinioException e) {
             e.printStackTrace();
             // Manejar el error
