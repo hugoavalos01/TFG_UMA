@@ -1,6 +1,7 @@
 <template>
   <NavbarTop />
   <div class="home">
+    <h1>Subir y clasificar imágenes</h1>
     <div class="formulario">
       <div
         class="drop-area"

@@ -3,7 +3,7 @@
     <Navbar />
     <h1>Validar</h1>
     <div v-if="imagenesConAnotaciones.length > 0">
-      <h2>Imágenes Clasificadas</h2>
+      <h2>Imágenes clasificadas por validar</h2>
       <div class="carousel">
         <button @click="prevImage" class="carousel-button prev-button">&#9664;</button>
         <div class="image-wrapper">
