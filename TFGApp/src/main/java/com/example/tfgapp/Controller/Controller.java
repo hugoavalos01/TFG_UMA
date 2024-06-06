@@ -60,8 +60,35 @@ public class Controller {
                 Map<String, String> fileData = new HashMap<>();
                 String url = minioService.getPresignedUrl(bucketName, fileName);
                 // Eliminar la extensión del nombre de archivo
-                String fileNameWithoutExtension = removeFileExtension(fileName);
-                fileData.put("fileName", fileNameWithoutExtension);
+                //String fileNameWithoutExtension = removeFileExtension(fileName);
+                fileData.put("fileName", fileName);
+                fileData.put("url", url);
+                fileDataList.add(fileData);
+            }
+
+            return ResponseEntity.ok(fileDataList);
+        } catch (MinioException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/noValidado")
+    public ResponseEntity<List<Map<String, String>>> listSinValidarFiles() {
+        String bucketName = "clasificado";
+        List<Map<String, String>> fileDataList = new ArrayList<>();
+
+        try {
+            // Obtener los nombres de archivo de MongoDB donde validado es false
+            List<String> unvalidatedFileNames = imagenService.findAllSinValidar();
+
+            for (String fileName : unvalidatedFileNames) {
+                Map<String, String> fileData = new HashMap<>();
+                String url = minioService.getPresignedUrl(bucketName, fileName);
+                fileData.put("fileName", fileName);
                 fileData.put("url", url);
                 fileDataList.add(fileData);
             }

@@ -11,9 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(value = "Anotaciones")
 public class Imagen {
 
-    public Imagen(String pathMinIO, String anotaciones) {
+    public Imagen(String pathMinIO, String anotaciones, String validado) {
         this.pathMinIO = pathMinIO;
         this.anotaciones = anotaciones;
+        this.validado  =  validado;
     }
 
     @Id
@@ -21,5 +22,6 @@ public class Imagen {
     @Indexed(unique = true)
     private String pathMinIO;
     private String anotaciones;
+    private String validado;
 
 }

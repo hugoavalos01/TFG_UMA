@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -98,10 +99,10 @@ public class ImagenService {
 
     public void saveClassifiedImagen(String nombre) throws IOException {
         int dotIndex = nombre.lastIndexOf('.');
-        nombre = nombre.substring(0, dotIndex);
-        String anotaciones = ".\\yolov5\\results\\total\\labels\\"+nombre+".txt";
+        String nombreTXT = nombre.substring(0, dotIndex);
+        String anotaciones = ".\\yolov5\\results\\total\\labels\\"+nombreTXT+".txt";
         String anotacion = readFirstWord(anotaciones);
-        Imagen imagen = new Imagen(nombre, anotacion);
+        Imagen imagen = new Imagen(nombre, anotacion, "false");
         imagenRepository.save(imagen);
     }
 
@@ -122,8 +123,15 @@ public class ImagenService {
         return imagenRepository.findAll();
     }
 
+    public List<String> findAllSinValidar() {
+        List<Imagen> unvalidatedImages = imagenRepository.findAllByValidado("false");
+        return unvalidatedImages.stream()
+                .map(Imagen::getPathMinIO)
+                .collect(Collectors.toList());
+    }
+
     public void saveAnotado(String fileName) {
-        Imagen imagen = new Imagen(fileName,"anotado");
+        Imagen imagen = new Imagen(fileName,"anotado", "false");
         imagenRepository.save(imagen);
     }
 

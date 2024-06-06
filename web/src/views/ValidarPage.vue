@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     cargarImagenes() {
-      uploadService.getImagenes().then((response) => {
+      uploadService.getImagenesSinValidar().then((response) => {
         this.imagenes = response.data;
         console.log('Imágenes cargadas:', this.imagenes);
         
