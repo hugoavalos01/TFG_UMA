@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/login", "/auth/register", "/api/uploadArchivo", "/api/moveImages", "api/classified","api/noValidado", "api/infoImagenes").permitAll() // Permitir acceso a rutas de login y registro
+                        .requestMatchers("/auth/login", "/auth/register", "/api/uploadArchivo", "/api/moveImages", "api/classified","api/noValidado","api/validarImagen", "api/infoImagenes").permitAll() // Permitir acceso a rutas de login y registro
                         //.anyRequest().authenticated() // Requiere autenticación para cualquier otra ruta
                 )
                 .formLogin(formLogin -> formLogin

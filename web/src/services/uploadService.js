@@ -17,6 +17,9 @@ const uploadService = {
     getInfoImagenes: () => {
         return instance.get('/infoImagenes');
     },
+    validarImagen: (fileName, validado)  => {
+        return instance.post('/validarImagen', { fileName, validado });
+      }
 
 };
 

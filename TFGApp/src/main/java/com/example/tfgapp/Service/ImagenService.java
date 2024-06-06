@@ -155,4 +155,14 @@ public class ImagenService {
     public Imagen findByPathMinIO(String fileName) {
         return imagenRepository.findByPathMinIO(fileName);
     }
+
+    public void actualizarEstadoValidacion(String fileName, String validado) {
+        Imagen imagen = imagenRepository.findByPathMinIO(fileName);
+        if (imagen != null) {
+            imagen.setValidado(validado);
+            imagenRepository.save(imagen);
+        } else {
+            throw new RuntimeException("Imagen no encontrada");
+        }
+    }
 }

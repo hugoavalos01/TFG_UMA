@@ -103,6 +103,20 @@ public class Controller {
         }
     }
 
+    @PostMapping("/validarImagen")
+    public ResponseEntity<String> validarImagen(@RequestBody Map<String, String> request) {
+        String fileName = request.get("fileName");
+        String validado = request.get("validado");
+
+        try {
+            imagenService.actualizarEstadoValidacion(fileName, validado);
+            return ResponseEntity.ok("Imagen validada correctamente");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error al validar la imagen");
+        }
+    }
+
     // Método para eliminar la extensión de un nombre de archivo
     private String removeFileExtension(String fileName) {
         int lastIndexOfDot = fileName.lastIndexOf(".");

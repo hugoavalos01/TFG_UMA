@@ -10,7 +10,7 @@
           <img :src="imagenesConAnotacionActual.imagen" :alt="'Imagen ' + (currentImageIndex + 1)" class="imagen-grande">
           <p>Clasificación de la IA: {{ imagenesConAnotacionActual.anotacion }}</p>
           <div class="button-container">
-            <button class="validar-button">Validar</button>
+            <button class="validar-button" @click="validarImagen">Validar</button>
             <button class="corregir-button">Corregir</button>
           </div>
         </div>
@@ -20,8 +20,17 @@
     <div v-else>
       <p>No hay imágenes clasificadas disponibles.</p>
     </div>
+    <div v-if="loading" class="spinner-overlay">
+      <div class="spinner"></div>
+      <div class="loading-text">Cargando<span class="loading-dots">
+        <span>.</span>
+        <span>.</span>
+        <span>.</span>
+      </span></div>
+    </div>
   </div>
 </template>
+
 
 
 <script>
@@ -35,7 +44,8 @@ export default {
       imagenesConAnotaciones: [],
       infoImagenes: [],
       imagenes: [],
-      currentImageIndex: 0
+      currentImageIndex: 0,
+      loading: false
     }
   },
   computed: {
@@ -50,6 +60,7 @@ export default {
   },
   methods: {
     cargarImagenes() {
+      this.loading = true;
       uploadService.getImagenesSinValidar().then((response) => {
         this.imagenes = response.data;
         console.log('Imágenes cargadas:', this.imagenes);
@@ -57,12 +68,14 @@ export default {
         // Asociar cada imagen con su anotación correspondiente
         this.imagenesConAnotaciones = this.imagenes.map(imagen => {
           const anotacion = this.infoImagenes.find(info => info.pathMinIO === imagen.fileName)?.anotaciones || 'Anotación no disponible';
-          return { imagen: imagen.url, anotacion: anotacion };
+          return { imagen: imagen.url, fileName: imagen.fileName , anotacion: anotacion };
         });
         
         console.log('Imágenes con anotaciones:', this.imagenesConAnotaciones);
       }).catch((error) => {
         console.error('Error al cargar las imágenes:', error);
+      }).finally(() => {
+        this.loading = false;
       })
     },
     cargarInfoImagenes() {
@@ -72,6 +85,21 @@ export default {
       }).catch((error) => {
         console.error('Error al cargar la información de las imágenes:', error);
       })
+    },
+    validarImagen() {
+      console.log('Validar imagen', this.imagenesConAnotacionActual)
+      const fileName = this.imagenesConAnotacionActual.fileName;
+      uploadService.validarImagen(fileName, "Validado").then(() => {
+        console.log('Imagen validada:', fileName);
+        // Puedes remover la imagen de la lista después de validar
+        this.imagenesConAnotaciones.splice(this.currentImageIndex, 1);
+        // Ajustar el índice de la imagen actual si es necesario
+        if (this.currentImageIndex >= this.imagenesConAnotaciones.length) {
+          this.currentImageIndex = this.imagenesConAnotaciones.length - 1;
+        }
+      }).catch((error) => {
+        console.error('Error al validar la imagen:', error);
+      });
     },
     nextImage() {
       if (this.currentImageIndex < this.imagenesConAnotaciones.length - 1) {
@@ -86,6 +114,7 @@ export default {
   }
 }
 </script>
+
 
 <style>
 .carousel {
@@ -131,5 +160,74 @@ export default {
 .corregir-button {
   background-color: #dc3545;
 }
-</style>
 
+/* Spinner CSS */
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
+}
+
+.spinner {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #42b983;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20px;
+  font-size: 1.5em;
+  color: #000;
+}
+
+.loading-dots {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+@keyframes blink {
+  0%, 20% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+}
+
+.loading-dots span {
+  opacity: 0;
+  animation: blink 1.5s infinite;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: 0.3s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.9s;
+}
+
+</style>
