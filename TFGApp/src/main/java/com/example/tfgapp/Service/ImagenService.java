@@ -30,10 +30,10 @@ public class ImagenService {
                 String filePath = minioService.downloadTempFile(sourceBucket, fileName);
 
                 // Ruta al intérprete de Python del entorno virtual
-                String pythonInterpreter = "C:\\Users\\Usuario\\OneDrive\\Escritorio\\Universidad\\TFG_IA\\yolov5\\tfg_env\\Scripts\\python.exe";
+                String pythonInterpreter = ".\\yolov5\\tfg_env\\Scripts\\python.exe";
 
                 // Ruta al script Python
-                String pythonScript = "C:\\Users\\Usuario\\OneDrive\\Escritorio\\Universidad\\TFG_IA\\yolov5\\detect.py";
+                String pythonScript = ".\\yolov5\\detect.py";
 
                 // Comando para ejecutar el script Python con el intérprete del entorno virtual
                 List<String> pythonCommand = Arrays.asList(pythonInterpreter, pythonScript,
