@@ -10,15 +10,16 @@
           <img :src="imagenesConAnotacionActual.imagen" :alt="'Imagen ' + (currentImageIndex + 1)" class="imagen-grande">
           <p>Clasificación de la IA: {{ imagenesConAnotacionActual.anotacion }}</p>
           <div class="button-container">
+            <button class="corregir-button" @click="corregir">{{ showInput ? 'No corregir' : 'Corregir' }}</button>
             <button class="validar-button" @click="validarImagen">Validar</button>
-            <button class="corregir-button">Corregir</button>
+            <input v-if="showInput" v-model="userInput" type="text" placeholder="Escribe aquí tu corrección y haz click en Validar" class="correccion-input custom-input">
           </div>
         </div>
         <button @click="nextImage" class="carousel-button next-button">&#9654;</button>
       </div>
     </div>
     <div v-else>
-      <p>No hay imágenes clasificadas disponibles.</p>
+      <p class="no-images-message">No hay imágenes clasificadas disponibles.</p>
     </div>
     <div v-if="loading" class="spinner-overlay">
       <div class="spinner"></div>
@@ -45,7 +46,9 @@ export default {
       infoImagenes: [],
       imagenes: [],
       currentImageIndex: 0,
-      loading: false
+      loading: false,
+      showInput: false,
+      userInput: ''
     }
   },
   computed: {
@@ -89,7 +92,8 @@ export default {
     validarImagen() {
       console.log('Validar imagen', this.imagenesConAnotacionActual)
       const fileName = this.imagenesConAnotacionActual.fileName;
-      uploadService.validarImagen(fileName, "Validado").then(() => {
+      const anotacion = this.userInput || "Validado";
+      uploadService.validarImagen(fileName, anotacion).then(() => {
         console.log('Imagen validada:', fileName);
         // Puedes remover la imagen de la lista después de validar
         this.imagenesConAnotaciones.splice(this.currentImageIndex, 1);
@@ -97,26 +101,36 @@ export default {
         if (this.currentImageIndex >= this.imagenesConAnotaciones.length) {
           this.currentImageIndex = this.imagenesConAnotaciones.length - 1;
         }
+        this.userInput = '';
+        this.showInput = false;
       }).catch((error) => {
         console.error('Error al validar la imagen:', error);
       });
     },
     nextImage() {
+      this.userInput = '';
       if (this.currentImageIndex < this.imagenesConAnotaciones.length - 1) {
         this.currentImageIndex++;
       }
     },
     prevImage() {
+      this.userInput = '';
       if (this.currentImageIndex > 0) {
         this.currentImageIndex--;
       }
+    },
+    corregir() {
+    this.showInput = !this.showInput;
+    if (!this.showInput) {
+        this.userInput = ''; // Reiniciar el valor del input cuando se oculta
     }
+  }
   }
 }
 </script>
 
 
-<style>
+<style scoped>
 .carousel {
   display: flex;
   align-items: center;
@@ -151,14 +165,23 @@ export default {
 .corregir-button {
   margin: 0 10px;
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #42b983;
   color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.validar-button:hover {
+  background-color: #2ecc71;
+}
+.corregir-button:hover {
+  background-color: #c0392b;
 }
 
 .corregir-button {
-  background-color: #dc3545;
+  background-color: #e74c3c;
 }
 
 /* Spinner CSS */
@@ -193,7 +216,11 @@ export default {
 .loading-text {
   margin-top: 20px;
   font-size: 1.5em;
-  color: #000;
+  color: #555;
+}
+
+.no-images-message {
+  color: #888;
 }
 
 .loading-dots {
@@ -228,6 +255,21 @@ export default {
 
 .loading-dots span:nth-child(3) {
   animation-delay: 0.9s;
+}
+.correccion-input {
+  padding: 5px 10px; /* Reducido el padding para hacerlo más pequeño */
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 12px;
+  width: 300px; /* Ancho original */
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+/* Agregado el nuevo estilo para el input cuando está en foco */
+.correccion-input:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 </style>
