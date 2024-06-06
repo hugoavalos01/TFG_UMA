@@ -49,19 +49,24 @@ public class Controller {
     }
 
     @GetMapping("/classified")
-    public ResponseEntity<List<String>> listClassifiedFiles() {
+    public ResponseEntity<List<Map<String, String>>> listClassifiedFiles() {
         String bucketName = "clasificado";
-        List<String> fileUrls = new ArrayList<>();
+        List<Map<String, String>> fileDataList = new ArrayList<>();
 
         try {
             List<String> fileNames = minioService.listFiles(bucketName);
 
             for (String fileName : fileNames) {
+                Map<String, String> fileData = new HashMap<>();
                 String url = minioService.getPresignedUrl(bucketName, fileName);
-                fileUrls.add(url);
+                // Eliminar la extensión del nombre de archivo
+                String fileNameWithoutExtension = removeFileExtension(fileName);
+                fileData.put("fileName", fileNameWithoutExtension);
+                fileData.put("url", url);
+                fileDataList.add(fileData);
             }
 
-            return ResponseEntity.ok(fileUrls);
+            return ResponseEntity.ok(fileDataList);
         } catch (MinioException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
@@ -70,6 +75,16 @@ public class Controller {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    // Método para eliminar la extensión de un nombre de archivo
+    private String removeFileExtension(String fileName) {
+        int lastIndexOfDot = fileName.lastIndexOf(".");
+        if (lastIndexOfDot != -1) {
+            return fileName.substring(0, lastIndexOfDot);
+        }
+        return fileName;
+    }
+
 
     /**
      * Sube un archivo al bucket de MinIO.

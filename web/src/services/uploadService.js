@@ -13,7 +13,11 @@ const uploadService = {
     },
     getImagenes: () => {
         return instance.get('/classified');
-    }
+    },
+    getInfoImagenes: () => {
+        return instance.get('/infoImagenes');
+    },
+
 };
 
 export default uploadService;
