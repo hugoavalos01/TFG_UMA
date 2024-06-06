@@ -36,20 +36,24 @@
         </button>
       </div>
     </div>
-    <button @click="moverImagenes" class="clasificar-bttn">Clasificar imagenes ya</button>
+    <button @click="clasificarImagenes" class="clasificar-bttn">Clasificar imagenes ya</button>
   </div>
+  <spinner-modal :show="loading" :message="message"></spinner-modal>
 </template>
 
 <script>
 import uploadService from "@/services/uploadService";
 import NavbarTop from '@/components/NavbarTop.vue';
+import SpinnerModal from "@/components/SpinnerModal.vue";
 
 export default {
-  components: { NavbarTop },
+  components: { NavbarTop, SpinnerModal },
   data() {
     return {
       file: null,
       isDragOver: false,
+      loading: false,
+      message: "Cargando"
     };
   },
   methods: {
@@ -73,29 +77,32 @@ export default {
       }
     },
     async onSubmit() {
+      this.loading = true;
       if (this.file) {
         const formData = new FormData();
         formData.append("file", this.file);
-
-        try {
-          const response = await uploadService.uploadFile(formData);
-          console.log("File uploaded successfully:", response.data);
-
-          // Resetear formulario
-          this.file = null;
-          this.$refs.fileInput.value = null;
-        } catch (error) {
-          console.error("Error uploading file:", error);
-        }
+          await uploadService.uploadFile(formData).then((response) => {
+            this.message = "Cargando";
+            console.log("File uploaded successfully:", response.data);
+          }).catch((error) => {
+            console.error("Error uploading file:", error);
+          }).finally(() => {
+            this.file = null;
+            this.$refs.fileInput.value = null;
+            this.loading = false;
+          });
       }
     },
-    async moverImagenes() {
-      try {
-        const response = await uploadService.moveImages();
-        console.log("Imagenes movidas correctamente:", response.data);
-      } catch (error) {
-        console.error("Error moviendo imagenes:", error);
-      }
+    async clasificarImagenes() {
+      this.message = "Clasificando imagenes...";
+      this.loading = true;
+      await uploadService.moveImages().then((response) => {
+        console.log("Imagenes movidas con exito:", response.data);
+      }).catch((error) => {
+        console.error("Error moving images:", error);
+      }).finally(() => {
+        this.loading = false;
+      });
     },
     isImage(file) {
       return file && file.type.startsWith("image/");
