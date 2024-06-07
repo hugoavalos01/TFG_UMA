@@ -12,10 +12,18 @@
           <div class="user-box">
             <input :type="passwordFieldType" v-model="password" required />
             <label>Contraseña</label>
-            <span class="password-toggle-icon" @click="togglePasswordVisibility" v-if="isPasswordVisible">
+            <span
+              class="password-toggle-icon"
+              @click="togglePasswordVisibility"
+              v-if="isPasswordVisible"
+            >
               <i class="fas fa-eye"></i>
             </span>
-            <span class="password-toggle-icon" @click="togglePasswordVisibility" v-else>
+            <span
+              class="password-toggle-icon"
+              @click="togglePasswordVisibility"
+              v-else
+            >
               <i class="fas fa-eye-slash"></i>
             </span>
           </div>
@@ -29,8 +37,6 @@
 <script>
 import NavbarTop from "@/components/NavbarTop.vue";
 import authServices from "@/services/authService";
-import { mapActions } from 'vuex';
-
 
 export default {
   components: { NavbarTop },
@@ -51,17 +57,17 @@ export default {
       this.passwordFieldType =
         this.passwordFieldType === "password" ? "text" : "password";
     },
-    ...mapActions(['login']),
     async login() {
-        await authServices.login(this.username, this.password)
-        .then(response => {
-          console.log('Login exitoso: ', response);
-          localStorage.setItem('token', response.token);
-        }).catch(error => {
-          console.log('Error en el login: ', error);
-        }).finally(() => {
-          this.$router.push('/inicio');
-        })
+      try {
+        const response = await authServices.login(this.username, this.password);
+        console.log("Login exitoso: ", response);
+        // Almacena el token en Vuex
+        this.$store.commit("SET_TOKEN", response.token);
+      } catch (error) {
+        console.log("Error en el login: ", error);
+      } finally {
+        this.$router.push("/inicio");
+      }
     },
   },
 };
@@ -71,7 +77,7 @@ export default {
 .container {
   padding: 20px;
   display: flex; /* Agregado */
-  align-items: center; 
+  align-items: center;
   justify-content: center;
 }
 

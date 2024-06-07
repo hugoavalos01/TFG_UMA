@@ -20,23 +20,22 @@
 </template>
 
 <script>
-import router from '@/router/router';
 export default {
   props: {
     login: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     logout() {
-      // Lógica para cerrar sesión
-      router.push('/login');
-      console.log("Cerrar sesión");
-      // Redirigir al usuario a la página de inicio de sesión o realizar otras acciones necesarias
-    }
-  }
-}
+      console.log("Sesión cerrada exitosamente");
+      this.$store.commit("CLEAR_TOKEN");
+      localStorage.removeItem("token");
+      this.$router.push("/login");
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -93,14 +92,13 @@ body {
   border: none;
   cursor: pointer;
   font-size: 20px;
-  
 }
 
 .dropdown-content {
   display: none;
   position: absolute;
   background-color: white;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   right: 0;
   z-index: 1;
 }

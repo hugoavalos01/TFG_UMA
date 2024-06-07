@@ -19,6 +19,9 @@ export default createStore({
     CLEAR_USER(state) {
       state.user = null;
       state.token = '';
+    },
+    CLEAR_TOKEN(state) {
+      state.token = null;
     }
   },
   actions: {},
