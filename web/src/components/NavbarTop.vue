@@ -10,7 +10,10 @@
     </div>
     <div class="navbar-user" v-if="!login">
       <div class="dropdown">
-        <button class="dropbtn"><i class="fas fa-user"></i></button>
+        <a style="color: white; margin-right: 10px;">{{ username }}</a>
+        <button class="dropbtn">
+          <i class="fas fa-user"></i>
+        </button>
         <div class="dropdown-content">
           <a @click="logout">Cerrar sesión</a>
         </div>
@@ -27,11 +30,20 @@ export default {
       default: false,
     },
   },
+  mounted() {
+    this.username = localStorage.getItem("username");
+  },
+  data() {
+    return {
+      username: "",
+    };
+  },
   methods: {
     logout() {
       console.log("Sesión cerrada exitosamente");
       this.$store.commit("CLEAR_TOKEN");
       localStorage.removeItem("token");
+      localStorage.removeItem("username");
       this.$router.push("/login");
     },
   },
@@ -101,6 +113,8 @@ body {
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   right: 0;
   z-index: 1;
+  width: 130px
+
 }
 
 .dropdown-content a {

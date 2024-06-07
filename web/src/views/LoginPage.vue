@@ -63,6 +63,9 @@ export default {
         console.log("Login exitoso: ", response);
         // Almacena el token en Vuex
         this.$store.commit("SET_TOKEN", response.token);
+        this.$store.commit("SET_USER", this.username);
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("username", this.username);
       } catch (error) {
         console.log("Error en el login: ", error);
       } finally {
