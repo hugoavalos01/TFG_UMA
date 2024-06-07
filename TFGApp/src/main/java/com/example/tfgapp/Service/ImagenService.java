@@ -55,7 +55,6 @@ public class ImagenService {
             throw new RuntimeException("Failed to classify images", e);
         }
     }
-
     private void borrarDirectorios() throws IOException {
         String rutaImagenes = ".\\yolov5\\results";
         String rutaResultados = ".\\yolov5\\images";
@@ -64,8 +63,6 @@ public class ImagenService {
         directoryDeleter.borrarContenidoDirectorio(rutaImagenes);
         directoryDeleter.borrarContenidoDirectorio(rutaResultados);
     }
-
-
     private String executeCommand(List<String> command) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -95,8 +92,6 @@ public class ImagenService {
             throw new RuntimeException("Failed to execute command", e);
         }
     }
-
-
     public void saveClassifiedImagen(String nombre) throws IOException {
         int dotIndex = nombre.lastIndexOf('.');
         String nombreTXT = nombre.substring(0, dotIndex);
@@ -118,7 +113,6 @@ public class ImagenService {
         }
         return null; // Si el archivo está vacío o no contiene palabras
     }
-
     public List<Imagen> findAll() {
         return imagenRepository.findAll();
     }
@@ -129,12 +123,6 @@ public class ImagenService {
                 .map(Imagen::getPathMinIO)
                 .collect(Collectors.toList());
     }
-
-    public void saveAnotado(String fileName) {
-        Imagen imagen = new Imagen(fileName,"anotado", "false");
-        imagenRepository.save(imagen);
-    }
-
     public String writeMetadataToFile(String fileName) {
         // Consultar MongoDB para obtener la información asociada al nombre del archivo
         Imagen imagen = imagenRepository.findByPathMinIO(fileName);
@@ -150,12 +138,9 @@ public class ImagenService {
             throw new RuntimeException("No se encontró información para el archivo: " + fileName);
         }
     }
-
-
     public Imagen findByPathMinIO(String fileName) {
         return imagenRepository.findByPathMinIO(fileName);
     }
-
     public void actualizarEstadoValidacion(String fileName, String validado) {
         Imagen imagen = imagenRepository.findByPathMinIO(fileName);
         if (imagen != null) {

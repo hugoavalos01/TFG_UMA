@@ -31,6 +31,7 @@
 import Navbar from '@/components/NavbarTop.vue'
 import uploadService from '@/services/uploadService.js'
 import SpinnerModal from "@/components/SpinnerModal.vue";
+import { NumberToClassUtil } from "@/utils/NumberToClassUtil.js";
 
 
 export default {
@@ -66,7 +67,7 @@ export default {
         // Asociar cada imagen con su anotación correspondiente
         this.imagenesConAnotaciones = this.imagenes.map(imagen => {
           const anotacion = this.infoImagenes.find(info => info.pathMinIO === imagen.fileName)?.anotaciones || 'Anotación no disponible';
-          return { imagen: imagen.url, fileName: imagen.fileName , anotacion: anotacion };
+          return { imagen: imagen.url, fileName: imagen.fileName , anotacion: NumberToClassUtil.transformNumberToWord(anotacion) };
         });
         
         console.log('Imágenes con anotaciones:', this.imagenesConAnotaciones);
