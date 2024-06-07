@@ -3,6 +3,7 @@ import LoginPage from '../views/LoginPage.vue'
 import ClasificarPage from '@/views/ClasificarPage.vue'
 import InicioPage from '@/views/InicioPage.vue'
 import ValidarPage from '@/views/ValidarPage.vue'
+import store from '@/store/store'
 
 const routes = [
   {
@@ -25,14 +26,6 @@ const routes = [
     name: 'Login',
     component: LoginPage
   },
-  // {
-  //   path: '/about',
-  //   name: 'about',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  // }
 ]
 
 const router = createRouter({
@@ -41,15 +34,15 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login']
-  const authRequired = !publicPages.includes(to.path)
-  const loggedIn = localStorage.getItem('usuario')
+  const publicPages = ['/login'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = store.getters.isAuthenticated;
 
   if (authRequired && !loggedIn) {
-    return next('/login')
+    console.log('No estás logueado');
+    return next('/login');
   }
-
-  next()
-})
+  next();
+});
 
 export default router

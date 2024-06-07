@@ -29,6 +29,8 @@
 <script>
 import NavbarTop from "@/components/NavbarTop.vue";
 import authServices from "@/services/authService";
+import { mapActions } from 'vuex';
+
 
 export default {
   components: { NavbarTop },
@@ -49,15 +51,17 @@ export default {
       this.passwordFieldType =
         this.passwordFieldType === "password" ? "text" : "password";
     },
+    ...mapActions(['login']),
     async login() {
-      try {
-        const response = await authServices.login(this.username, this.password);
-        localStorage.setItem("token", response.token);
-        this.$router.push({ name: "Inicio" });
-      } catch (error) {
-        console.error("Error en el inicio de sesión:", error.message);
-        // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
-      }
+        await authServices.login(this.username, this.password)
+        .then(response => {
+          console.log('Login exitoso: ', response);
+          localStorage.setItem('token', response.token);
+        }).catch(error => {
+          console.log('Error en el login: ', error);
+        }).finally(() => {
+          this.$router.push('/inicio');
+        })
     },
   },
 };

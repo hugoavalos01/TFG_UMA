@@ -8,11 +8,7 @@ const authService = {
     login: (username, password) => {
         return instance.post('/login', { username, password })
             .then(response => {
-                if (response.data.accessToken) {
-                    return { token: response.data.accessToken };
-                } else {
-                    throw new Error('No se recibió un token de acceso.');
-                }
+                return response.data;
             });
     },
     register: () => {
