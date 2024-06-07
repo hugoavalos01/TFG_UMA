@@ -1,29 +1,27 @@
 <template>
-  <NavbarTop :login="true" />
-  <div class="container">
-    <div class="login-box">
-      <h2>Iniciar sesión</h2>
-      <form>
-        <div class="user-box">
-          <input type="text" name="" />
-          <label>Usuario</label>
-        </div>
-        <div class="user-box">
-          <input :type="passwordFieldType" name="" id="password" />
-          <label>Contraseña</label>
-          <span class="password-toggle-icon" @click="togglePasswordVisibility" v-if="isPasswordVisible"
-            ><i
-              class="fas fa-eye"
-            ></i
-          ></span>
-          <span class="password-toggle-icon" @click="togglePasswordVisibility" v-else
-            ><i
-              class="fas fa-eye-slash"
-            ></i
-          ></span>
-        </div>
-        <button class="submit" @click="login">Acceder</button>
-      </form>
+  <div>
+    <NavbarTop :login="true" />
+    <div class="container">
+      <div class="login-box">
+        <h2>Iniciar sesión</h2>
+        <form @submit.prevent="login">
+          <div class="user-box">
+            <input type="text" v-model="username" required />
+            <label>Usuario</label>
+          </div>
+          <div class="user-box">
+            <input :type="passwordFieldType" v-model="password" required />
+            <label>Contraseña</label>
+            <span class="password-toggle-icon" @click="togglePasswordVisibility" v-if="isPasswordVisible">
+              <i class="fas fa-eye"></i>
+            </span>
+            <span class="password-toggle-icon" @click="togglePasswordVisibility" v-else>
+              <i class="fas fa-eye-slash"></i>
+            </span>
+          </div>
+          <button class="submit">Acceder</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -50,21 +48,17 @@ export default {
     togglePasswordVisibility() {
       this.passwordFieldType =
         this.passwordFieldType === "password" ? "text" : "password";
-      console.log(this.isPasswordVisible);
     },
     async login() {
-    try {
-        const response = await authServices.login();
-        console.log(response) // Espera a que el inicio de sesión se complete
-        // Redirecciona al usuario a la página de inicio
-        localStorage.setItem("usuario", true);
+      try {
+        const response = await authServices.login(this.username, this.password);
+        localStorage.setItem("token", response.token);
         this.$router.push({ name: "Inicio" });
-    } catch (error) {
-        // Maneja cualquier error que ocurra durante el inicio de sesión
-        console.error("Error en el inicio de sesión");
+      } catch (error) {
+        console.error("Error en el inicio de sesión:", error.message);
         // Puedes mostrar un mensaje de error al usuario aquí si lo deseas
-    }
-}
+      }
+    },
   },
 };
 </script>

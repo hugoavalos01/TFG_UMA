@@ -1,4 +1,4 @@
-package com.example.tfgapp.Controller;
+/*package com.example.tfgapp.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -34,4 +34,4 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     }
 
 
-}
+}*/

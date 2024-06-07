@@ -1,3 +1,4 @@
+/*
 package com.example.tfgapp.Controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -61,4 +62,4 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         }
     }
 
-}
+}*/

@@ -5,17 +5,14 @@ const instance = axios.create({
 });
 
 const authService = {
-    login: () => {
-        const formData = new FormData();
-        formData.append('username', 'hugo');
-        formData.append('password', 'hugo');
-    
-        return instance.post('/login', formData)
+    login: (username, password) => {
+        return instance.post('/login', { username, password })
             .then(response => {
                 if (response.data.accessToken) {
-                    localStorage.setItem('usuario', JSON.stringify(response.data));
+                    return { token: response.data.accessToken };
+                } else {
+                    throw new Error('No se recibió un token de acceso.');
                 }
-                return response.data;
             });
     },
     register: () => {
