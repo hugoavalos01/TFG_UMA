@@ -5,17 +5,45 @@
     <div v-if="imagenesConAnotaciones.length > 0">
       <h2>Imágenes clasificadas por validar</h2>
       <div class="carousel">
-        <button @click="prevImage" class="carousel-button prev-button">&#9664;</button>
+        <button @click="prevImage" class="carousel-button prev-button">
+          &#9664;
+        </button>
         <div class="image-wrapper">
-          <img :src="imagenesConAnotacionActual.imagen" :alt="'Imagen ' + (currentImageIndex + 1)" class="imagen-grande">
-          <p>Clasificación de la IA: {{ imagenesConAnotacionActual.anotacion }}</p>
+          <img
+            :src="imagenesConAnotacionActual.imagen"
+            :alt="'Imagen ' + (currentImageIndex + 1)"
+            class="imagen-grande"
+          />
+          <p>
+            Clasificación de la IA: {{ imagenesConAnotacionActual.anotacion }}
+          </p>
           <div class="button-container">
-            <button class="corregir-button" @click="corregir">{{ showInput ? 'No corregir' : 'Corregir' }}</button>
-            <button class="validar-button" @click="validarImagen">Validar</button>
-            <input v-if="showInput" v-model="userInput" type="text" placeholder="Escribe aquí tu corrección y haz click en Validar" class="correccion-input custom-input">
+            <button class="corregir-button" @click="corregir">
+              {{ showInput ? "No corregir" : "Corregir" }}
+            </button>
+            <button class="validar-button" @click="validarImagen">
+              Validar
+            </button>
+            <select
+              v-if="showInput"
+              v-model="userInput"
+              type="text"
+              placeholder="Escribe aquí tu corrección y haz click en 'Validar'"
+              class="correccion-input custom-input"
+            >
+              <option
+                v-for="(clase, index) in clases"
+                :key="index"
+                :value="index"
+              >
+                {{ clase }}
+              </option>
+            </select>
           </div>
         </div>
-        <button @click="nextImage" class="carousel-button next-button">&#9654;</button>
+        <button @click="nextImage" class="carousel-button next-button">
+          &#9654;
+        </button>
       </div>
     </div>
     <div v-else>
@@ -28,11 +56,10 @@
 
 
 <script>
-import Navbar from '@/components/NavbarTop.vue'
-import uploadService from '@/services/uploadService.js'
+import Navbar from "@/components/NavbarTop.vue";
+import uploadService from "@/services/uploadService.js";
 import SpinnerModal from "@/components/SpinnerModal.vue";
 import { NumberToClassUtil } from "@/utils/NumberToClassUtil.js";
-
 
 export default {
   components: { Navbar, SpinnerModal },
@@ -44,85 +71,109 @@ export default {
       currentImageIndex: 0,
       loading: false,
       showInput: false,
-      userInput: ''
-    }
+      userInput: "",
+      clases: []
+    };
   },
   computed: {
     imagenesConAnotacionActual() {
       return this.imagenesConAnotaciones[this.currentImageIndex] || {};
-    }
+    },
+  },
+  created() {
+    this.clases = Object.values(NumberToClassUtil.numberToClassMap);
   },
   mounted() {
-    console.log('ValidarPage mounted')
-    this.cargarInfoImagenes()
-    this.cargarImagenes()
+    console.log("ValidarPage mounted");
+    this.cargarInfoImagenes();
+    this.cargarImagenes();
   },
   methods: {
     cargarImagenes() {
       this.loading = true;
-      uploadService.getImagenesSinValidar().then((response) => {
-        this.imagenes = response.data;
-        console.log('Imágenes cargadas:', this.imagenes);
-        
-        // Asociar cada imagen con su anotación correspondiente
-        this.imagenesConAnotaciones = this.imagenes.map(imagen => {
-          const anotacion = this.infoImagenes.find(info => info.pathMinIO === imagen.fileName)?.anotaciones || 'Anotación no disponible';
-          return { imagen: imagen.url, fileName: imagen.fileName , anotacion: NumberToClassUtil.transformNumberToWord(anotacion) };
+      uploadService
+        .getImagenesSinValidar()
+        .then((response) => {
+          this.imagenes = response.data;
+          console.log("Imágenes cargadas:", this.imagenes);
+
+          // Asociar cada imagen con su anotación correspondiente
+          this.imagenesConAnotaciones = this.imagenes.map((imagen) => {
+            const anotacion =
+              this.infoImagenes.find(
+                (info) => info.pathMinIO === imagen.fileName
+              )?.anotaciones || "Anotación no disponible";
+            return {
+              imagen: imagen.url,
+              fileName: imagen.fileName,
+              anotacion: NumberToClassUtil.transformNumberToWord(anotacion),
+            };
+          });
+
+          console.log("Imágenes con anotaciones:", this.imagenesConAnotaciones);
+        })
+        .catch((error) => {
+          console.error("Error al cargar las imágenes:", error);
+        })
+        .finally(() => {
+          this.loading = false;
         });
-        
-        console.log('Imágenes con anotaciones:', this.imagenesConAnotaciones);
-      }).catch((error) => {
-        console.error('Error al cargar las imágenes:', error);
-      }).finally(() => {
-        this.loading = false;
-      })
     },
     cargarInfoImagenes() {
-      uploadService.getInfoImagenes().then((response) => {
-        this.infoImagenes = response.data;
-        console.log('Información de imágenes cargada:', this.infoImagenes);
-      }).catch((error) => {
-        console.error('Error al cargar la información de las imágenes:', error);
-      })
+      uploadService
+        .getInfoImagenes()
+        .then((response) => {
+          this.infoImagenes = response.data;
+          console.log("Información de imágenes cargada:", this.infoImagenes);
+        })
+        .catch((error) => {
+          console.error(
+            "Error al cargar la información de las imágenes:",
+            error
+          );
+        });
     },
     validarImagen() {
-      console.log('Validar imagen', this.imagenesConAnotacionActual)
+      console.log("Validar imagen", this.imagenesConAnotacionActual);
       const fileName = this.imagenesConAnotacionActual.fileName;
       const anotacion = this.userInput || "Validado";
-      uploadService.validarImagen(fileName, anotacion).then(() => {
-        console.log('Imagen validada:', fileName);
-        // Puedes remover la imagen de la lista después de validar
-        this.imagenesConAnotaciones.splice(this.currentImageIndex, 1);
-        // Ajustar el índice de la imagen actual si es necesario
-        if (this.currentImageIndex >= this.imagenesConAnotaciones.length) {
-          this.currentImageIndex = this.imagenesConAnotaciones.length - 1;
-        }
-        this.userInput = '';
-        this.showInput = false;
-      }).catch((error) => {
-        console.error('Error al validar la imagen:', error);
-      });
+      uploadService
+        .validarImagen(fileName, anotacion)
+        .then(() => {
+          console.log("Imagen validada:", fileName);
+          // Puedes remover la imagen de la lista después de validar
+          this.imagenesConAnotaciones.splice(this.currentImageIndex, 1);
+          // Ajustar el índice de la imagen actual si es necesario
+          if (this.currentImageIndex >= this.imagenesConAnotaciones.length) {
+            this.currentImageIndex = this.imagenesConAnotaciones.length - 1;
+          }
+          this.userInput = "";
+          this.showInput = false;
+        })
+        .catch((error) => {
+          console.error("Error al validar la imagen:", error);
+        });
     },
     nextImage() {
-      this.userInput = '';
+      this.userInput = "";
       if (this.currentImageIndex < this.imagenesConAnotaciones.length - 1) {
         this.currentImageIndex++;
       }
     },
     prevImage() {
-      this.userInput = '';
+      this.userInput = "";
       if (this.currentImageIndex > 0) {
         this.currentImageIndex--;
       }
     },
     corregir() {
-    this.showInput = !this.showInput;
-    if (!this.showInput) {
-        this.userInput = ''; // Reiniciar el valor del input cuando se oculta
-    }
-  }
-  }
-}
+      this.showInput = !this.showInput;
+      if (!this.showInput) {
+        this.userInput = ""; // Reiniciar el valor del input cuando se oculta
+      }
+    },
+  },
+};
 </script>
 
 
@@ -199,5 +250,4 @@ export default {
   outline: none;
   border-color: #007bff;
 }
-
 </style>

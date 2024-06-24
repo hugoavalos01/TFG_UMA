@@ -3,8 +3,8 @@
     <NavbarTop :login="true" />
     <div class="container">
       <div class="login-box">
-        <h2>Iniciar sesión</h2>
-        <form @submit.prevent="login">
+        <h2>{{ isAccionSelected ? "Iniciar sesión" : "Registro" }}</h2>
+        <form @submit.prevent="doActionSelected">
           <div class="user-box">
             <input type="text" v-model="username" required />
             <label>Usuario</label>
@@ -15,7 +15,7 @@
             <span
               class="password-toggle-icon"
               @click="togglePasswordVisibility"
-              v-if="isPasswordVisible"
+              v-if="!isPasswordVisible"
             >
               <i class="fas fa-eye"></i>
             </span>
@@ -27,7 +27,12 @@
               <i class="fas fa-eye-slash"></i>
             </span>
           </div>
-          <button class="submit">Acceder</button>
+          <button class="cambiarAccion" @click="cambiarAccion">
+            <u>{{ isAccionSelected ? "Registrarse" : "Iniciar sesión" }}</u>
+          </button>
+          <button class="submit">
+            {{ isAccionSelected ? "Iniciar sesión" : "Registrarse" }}
+          </button>
         </form>
       </div>
     </div>
@@ -44,18 +49,32 @@ export default {
     isPasswordVisible() {
       return this.passwordFieldType === "password";
     },
+    isAccionSelected() {
+      return this.accion === "login";
+    },
   },
   data() {
     return {
       username: "",
       password: "",
       passwordFieldType: "password",
+      accion: "login",
     };
   },
   methods: {
     togglePasswordVisibility() {
       this.passwordFieldType =
         this.passwordFieldType === "password" ? "text" : "password";
+    },
+    cambiarAccion() {
+      this.accion = this.accion === "login" ? "register" : "login";
+    },
+    doActionSelected() {
+      if (this.isAccionSelected) {
+        this.login();
+      } else {
+        this.register();
+      }
     },
     async login() {
       try {
@@ -68,6 +87,24 @@ export default {
         localStorage.setItem("username", this.username);
       } catch (error) {
         console.log("Error en el login: ", error);
+      } finally {
+        this.$router.push("/inicio");
+      }
+    },
+    async register() {
+      try {
+        const response = await authServices.register(
+          this.username,
+          this.password
+        );
+        console.log("Registro exitoso: ", response);
+        // Almacena el token en Vuex
+        this.$store.commit("SET_TOKEN", response.token);
+        this.$store.commit("SET_USER", this.username);
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("username", this.username);
+      } catch (error) {
+        console.log("Error en el registro: ", error);
       } finally {
         this.$router.push("/inicio");
       }
@@ -100,6 +137,15 @@ h1 {
 
 .submit:hover {
   background-color: #45a049;
+}
+
+.cambiarAccion {
+  padding: 10px;
+  background-color: white;
+  color: #4caf50;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .login-box {

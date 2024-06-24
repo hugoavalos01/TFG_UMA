@@ -126,6 +126,8 @@ body {
 
 .dropdown-content a:hover {
   background-color: #ddd;
+  cursor: pointer;
+
 }
 
 .dropdown:hover .dropdown-content {
