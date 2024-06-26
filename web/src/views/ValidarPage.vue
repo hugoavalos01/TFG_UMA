@@ -15,7 +15,7 @@
             class="imagen-grande"
           />
           <p>
-            Clasificación de la IA: {{ imagenesConAnotacionActual.anotacion }}
+            <b>Clasificación de la IA:</b> {{ imagenesConAnotacionActual.anotacion }}
           </p>
           <div class="button-container">
             <button class="corregir-button" @click="corregir">
@@ -31,6 +31,7 @@
               class="correccion-input custom-input"
             >
             <option disabled value="">Escoge la clase correcta y haz click en 'Validar'</option>
+            <option value="20">Imagen vacía</option>
               <option
                 v-for="(clase, index) in clases"
                 :key="index"
@@ -38,6 +39,7 @@
               >
                 {{ clase }}
               </option>
+              
             </select>
           </div>
         </div>

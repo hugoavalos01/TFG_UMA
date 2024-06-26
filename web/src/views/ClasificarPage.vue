@@ -37,8 +37,8 @@
         </button>
       </div>
     </div>
-    <button @click="clasificarImagenes" class="clasificar-bttn">
-      Clasificar imagenes ya
+    <button @click="clasificarImagenes" :disabled="clasificando" class="clasificar-bttn">
+      <u>Clasificar imagenes ya</u>
     </button>
     <div v-if="clasificando" style="margin-top: 20px;">Clasificando imagenes...</div>
   </div>
@@ -234,13 +234,18 @@ export default {
   cursor: not-allowed;
 }
 .clasificar-bttn {
-  color: white;
-  padding: 10px 20px;
-  cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s; /* Transición para el color de fondo */
-  background-color: #42b983;
-  margin-top: 20px;
-  border: 2px solid #3a9b76; /* Borde para el botón "Escoger un archivo" */
+  color: #42b983;
+  margin-top: 25px;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.clasificar-bttn:disabled {
+  cursor: not-allowed;
+}
+.clasificar-bttn:hover {
+  color: #3a9b76; /* Color de fondo al pasar el ratón */
 }
 </style>

@@ -24,6 +24,7 @@ export class NumberToClassUtil {
         21: "Garduña",
         22: "Tejón",
         23: "Nutria"
+        
     };
 
     static transformNumberToWord(number) {

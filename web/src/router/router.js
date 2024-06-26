@@ -4,6 +4,7 @@ import ClasificarPage from '@/views/ClasificarPage.vue'
 import InicioPage from '@/views/InicioPage.vue'
 import ValidarPage from '@/views/ValidarPage.vue'
 import store from '@/store/store'
+import ResultadosPage from '@/views/ResultadosPage.vue'
 
 const routes = [
   {
@@ -15,6 +16,11 @@ const routes = [
     path: '/validar',
     name: 'Validar',
     component: ValidarPage
+  },
+  {
+    path: '/resultados',
+    name: 'Resultados',
+    component: ResultadosPage
   },
   {
     path: '/inicio',

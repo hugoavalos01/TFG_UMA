@@ -140,6 +140,12 @@ public class ImagenService {
                 .map(Imagen::getPathMinIO)
                 .collect(Collectors.toList());
     }
+    public List<String> findAllValidadas() {
+        List<Imagen> imagenesValidadas = imagenRepository.findAllValidated();
+        return imagenesValidadas.stream()
+                .map(Imagen::getPathMinIO)
+                .collect(Collectors.toList());
+    }
     public String writeMetadataToFile(String fileName) {
         // Consultar MongoDB para obtener la información asociada al nombre del archivo
         Imagen imagen = imagenRepository.findByPathMinIO(fileName);

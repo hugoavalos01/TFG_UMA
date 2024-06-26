@@ -7,6 +7,7 @@
       <router-link to="/inicio">Inicio</router-link>
       <router-link to="/clasificar">Clasificar</router-link>
       <router-link to="/validar">Validar</router-link>
+      <router-link to="/resultados">Resultados</router-link>
     </div>
     <div class="navbar-user" v-if="!login">
       <div class="dropdown">

@@ -55,7 +55,7 @@ public class Controller {
         List<Map<String, String>> fileDataList = new ArrayList<>();
 
         try {
-            List<String> fileNames = minioService.listFiles(bucketName);
+            List<String> fileNames = imagenService.findAllValidadas();
 
             for (String fileName : fileNames) {
                 Map<String, String> fileData = new HashMap<>();

@@ -13,6 +13,9 @@ const uploadService = {
     getImagenesSinValidar: () => {
         return instance.get('/noValidado');
     },
+    getImagenesValidadas: () => {
+        return instance.get('/classified');
+    },
     getInfoImagenes: () => {
         return instance.get('/infoImagenes');
     },
