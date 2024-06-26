@@ -37,14 +37,17 @@
         </button>
       </div>
     </div>
-    <button @click="clasificarImagenes" class="clasificar-bttn">Clasificar imagenes ya</button>
+    <button @click="clasificarImagenes" class="clasificar-bttn">
+      Clasificar imagenes ya
+    </button>
+    <div v-if="clasificando">Clasificando imagenes...</div>
   </div>
   <spinner-modal :show="loading" :message="message"></spinner-modal>
 </template>
 
 <script>
 import uploadService from "@/services/uploadService";
-import NavbarTop from '@/components/NavbarTop.vue';
+import NavbarTop from "@/components/NavbarTop.vue";
 import SpinnerModal from "@/components/SpinnerModal.vue";
 
 export default {
@@ -54,7 +57,8 @@ export default {
       file: null,
       isDragOver: false,
       loading: false,
-      message: "Cargando"
+      clasificando: false,
+      message: "Cargando",
     };
   },
   methods: {
@@ -82,12 +86,16 @@ export default {
       if (this.file) {
         const formData = new FormData();
         formData.append("file", this.file);
-          await uploadService.uploadFile(formData).then((response) => {
+        await uploadService
+          .uploadFile(formData)
+          .then((response) => {
             this.message = "Cargando";
             console.log("File uploaded successfully:", response.data);
-          }).catch((error) => {
+          })
+          .catch((error) => {
             console.error("Error uploading file:", error);
-          }).finally(() => {
+          })
+          .finally(() => {
             this.file = null;
             this.$refs.fileInput.value = null;
             this.loading = false;
@@ -95,15 +103,37 @@ export default {
       }
     },
     async clasificarImagenes() {
-      this.message = "Clasificando imagenes...";
-      this.loading = true;
-      await uploadService.moveImages().then((response) => {
-        console.log("Imagenes movidas con exito:", response.data);
-      }).catch((error) => {
-        console.error("Error moving images:", error);
-      }).finally(() => {
-        this.loading = false;
-      });
+      this.message = "Clasificando imágenes...";
+      this.clasificando = true;
+      try {
+        await uploadService.moveImages(); // Llamada inicial para iniciar la clasificación
+        this.pollStatus(); // Iniciar el polling del estado
+      } catch (error) {
+        console.error("Error al iniciar la clasificación:", error);
+        this.message = "Error al iniciar la clasificación: " + error.message;
+        this.clasificando = false;
+      }
+    },
+    async pollStatus() {
+      const checkStatus = async () => {
+        try {
+          const response = await uploadService.getStatus(); // Llamada al endpoint de estado
+          if (response.data === "Completado") {
+            this.message = "Imágenes clasificadas con éxito.";
+            this.clasificando = false;
+            clearInterval(this.pollInterval);
+          }
+        } catch (error) {
+          console.error("Error al verificar el estado:", error);
+          this.message = "Error al verificar el estado: " + error.message;
+          this.clasificando = false;
+          clearInterval(this.pollInterval);
+        }
+      };
+
+      // Realiza el chequeo de estado cada 5 segundos
+      this.pollInterval = setInterval(checkStatus, 5000);
+      checkStatus(); // Llamada inicial inmediata
     },
     isImage(file) {
       return file && file.type.startsWith("image/");
@@ -184,7 +214,7 @@ export default {
 .submit-button:disabled {
   cursor: not-allowed;
 }
-.clasificar-bttn{
+.clasificar-bttn {
   color: white;
   padding: 10px 20px;
   cursor: pointer;
@@ -193,7 +223,5 @@ export default {
   background-color: #42b983;
   margin-top: 20px;
   border: 2px solid #3a9b76; /* Borde para el botón "Escoger un archivo" */
-
-
 }
 </style>

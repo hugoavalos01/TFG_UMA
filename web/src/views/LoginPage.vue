@@ -4,7 +4,7 @@
     <div class="container">
       <div class="login-box">
         <h2>{{ isAccionSelected ? "Iniciar sesión" : "Registro" }}</h2>
-        <form @submit.prevent="doActionSelected">
+        <form>
           <div class="user-box">
             <input type="text" v-model="username" required />
             <label>Usuario</label>
@@ -27,10 +27,10 @@
               <i class="fas fa-eye-slash"></i>
             </span>
           </div>
-          <button class="cambiarAccion" @click="cambiarAccion">
+          <button class="cambiarAccion" @click="cambiarAccion" type="button">
             <u>{{ isAccionSelected ? "Registrarse" : "Iniciar sesión" }}</u>
           </button>
-          <button class="submit">
+          <button class="submit" @click="doActionSelected">
             {{ isAccionSelected ? "Iniciar sesión" : "Registrarse" }}
           </button>
         </form>

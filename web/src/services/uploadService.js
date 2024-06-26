@@ -7,6 +7,9 @@ const uploadService = {
     moveImages: () => {
         return instance.post('/moveImages');
     },
+    getStatus: () => {
+        return instance.get('/moveImages/status');
+    },
     getImagenesSinValidar: () => {
         return instance.get('/noValidado');
     },

@@ -4,8 +4,6 @@ import com.example.tfgapp.Entity.Imagen;
 import com.example.tfgapp.Service.MinIOService;
 import com.example.tfgapp.Service.ImagenService;
 import com.example.tfgapp.Utils.ScheduledTasks;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -198,6 +196,12 @@ public class Controller {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al clasificar las imágenes: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/moveImages/status")
+    public ResponseEntity<String> getStatus() {
+        boolean isComplete = scheduledTasks.isClasificacionCompletada();
+        return ResponseEntity.ok(isComplete ? "Completado" : "En progreso");
     }
 
     /**

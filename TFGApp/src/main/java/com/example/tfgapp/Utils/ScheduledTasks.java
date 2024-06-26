@@ -7,6 +7,7 @@ import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.errors.MinioException;
 import io.minio.messages.Item;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ public class ScheduledTasks {
     private final MinIOService minIOService;
     private final MinioClient minioClient;
     private final ImagenService imagenService;
+    private boolean clasificacionCompletada = false;
 
     public ScheduledTasks(MinIOService minIOService, MinioClient minioClient, ImagenService imagenService) {
         this.minIOService = minIOService;
@@ -29,28 +31,20 @@ public class ScheduledTasks {
         this.imagenService = imagenService;
     }
 
+    @Async
     @Scheduled(cron = "0 0 22 * * *") // Ejecutar a las 22:00 todos los días
     public void clasificarImagenesScheduled() {
+        clasificacionCompletada = false;
         try {
-            List<String> imageNames = listAllImages("sin-clasificar");
             imagenService.clasificarImagenes();
-        } catch (IOException | MinioException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            // Manejar el error
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
-            throw new RuntimeException(e);
+        } finally {
+            clasificacionCompletada = true;
         }
     }
 
-    private List<String> listAllImages(String bucketName) throws IOException, MinioException, NoSuchAlgorithmException, InvalidKeyException {
-        List<String> imageNames = new ArrayList<>();
-        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucketName).build());
-        for (Result<Item> result : results) {
-            Item item = result.get();
-            imageNames.add(item.objectName());
-        }
-        return imageNames;
+    public boolean isClasificacionCompletada() {
+        return clasificacionCompletada;
     }
 }
