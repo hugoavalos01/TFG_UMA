@@ -28,9 +28,9 @@
               v-if="showInput"
               v-model="userInput"
               type="text"
-              placeholder="Escribe aquí tu corrección y haz click en 'Validar'"
               class="correccion-input custom-input"
             >
+            <option disabled value="">Escoge la clase correcta y haz click en 'Validar'</option>
               <option
                 v-for="(clase, index) in clases"
                 :key="index"

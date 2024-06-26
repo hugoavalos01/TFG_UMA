@@ -11,10 +11,9 @@ const authService = {
                 return response.data;
             });
     },
-    register: () => {
+    register: (username, password) => {
         return instance.post('/register', {
-            username: "hugo",
-            password: "hugo"
+            username, password
         });
     },
     logout: () => {
