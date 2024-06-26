@@ -18,6 +18,12 @@ public class ImagenService {
 
     private final MinIOService minioService;
 
+    /**
+     * Ejecuta el script de clasificacion de imagenes, borra la imagen inicial del bucket no clasificado y sube
+     * la imagen clasificada al bucket clasificado
+     *
+     * @throws IOException
+     */
     public void clasificarImagenes() throws IOException {
         String sourceBucket = "sin-clasificar";
         borrarDirectorios();
@@ -55,6 +61,11 @@ public class ImagenService {
             throw new RuntimeException("Failed to classify images", e);
         }
     }
+
+    /**
+     * Borra el contenido los directorios especificados
+     * @throws IOException
+     */
     private void borrarDirectorios() throws IOException {
         String rutaImagenes = ".\\yolov5\\results";
         String rutaResultados = ".\\yolov5\\images";
@@ -63,6 +74,12 @@ public class ImagenService {
         directoryDeleter.borrarContenidoDirectorio(rutaImagenes);
         directoryDeleter.borrarContenidoDirectorio(rutaResultados);
     }
+
+    /**
+     * Ejecuta el script
+     * @param command
+     * @return
+     */
     private String executeCommand(List<String> command) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);

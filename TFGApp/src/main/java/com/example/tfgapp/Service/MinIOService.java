@@ -26,6 +26,13 @@ public class MinIOService {
     @Autowired
     private MinioClient minioClient;
 
+    /**
+     * Descarga el archivo pasado como argumento del bucket especificado
+     * @param bucketName
+     * @param fileName
+     * @return
+     * @throws Exception
+     */
     public String downloadTempFile(String bucketName, String fileName) throws Exception {
         String filePath =  ".\\yolov5\\images\\" + fileName; // Ruta temporal para guardar el archivo
         minioClient.downloadObject(
@@ -37,6 +44,11 @@ public class MinIOService {
         );
         return filePath;
     }
+
+    /**
+     * Sube un archivo al bucket clasificado
+     * @param fileName
+     */
     public void uploadClassifiedFile(String fileName) {
         String bucketName = "clasificado";
         String filePath = ".\\yolov5\\results\\total\\"+fileName;
@@ -55,6 +67,11 @@ public class MinIOService {
         }
     }
 
+    /**
+     * Elimina un archivo de un bucket
+     * @param fileName
+     * @throws Exception
+     */
     public void deleteFile(String fileName) throws Exception {
         String bucketName = "sin-clasificar";
         minioClient.removeObject(
@@ -65,6 +82,12 @@ public class MinIOService {
         );
     }
 
+    /**
+     * Devuelve el nombre de los archivos en un bucket
+     * @param bucketName
+     * @return
+     * @throws Exception
+     */
     public List<String> listFiles(String bucketName) throws Exception {
         List<String> fileNames = new ArrayList<>();
 

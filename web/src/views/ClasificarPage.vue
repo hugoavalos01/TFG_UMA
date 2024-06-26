@@ -40,7 +40,7 @@
     <button @click="clasificarImagenes" class="clasificar-bttn">
       Clasificar imagenes ya
     </button>
-    <div v-if="clasificando">Clasificando imagenes...</div>
+    <div v-if="clasificando" style="margin-top: 20px;">Clasificando imagenes...</div>
   </div>
   <spinner-modal :show="loading" :message="message"></spinner-modal>
 </template>
@@ -60,6 +60,9 @@ export default {
       clasificando: false,
       message: "Cargando",
     };
+  },
+  mounted() {
+    this.checkInitialStatus();
   },
   methods: {
     onFileChange(event) {
@@ -134,6 +137,22 @@ export default {
       // Realiza el chequeo de estado cada 5 segundos
       this.pollInterval = setInterval(checkStatus, 5000);
       checkStatus(); // Llamada inicial inmediata
+    },
+    async checkInitialStatus() {
+      try {
+        const response = await uploadService.getStatus();
+        if (response.data === "En progreso") {
+          this.clasificando = true;
+          this.message = "Clasificando imágenes...";
+          this.pollStatus(); // Iniciar el polling del estado
+        } else {
+          this.clasificando = false;
+          this.message = "Imágenes clasificadas con éxito.";
+        }
+      } catch (error) {
+        console.error("Error al verificar el estado inicial:", error);
+        this.message = "Error al verificar el estado inicial: " + error.message;
+      }
     },
     isImage(file) {
       return file && file.type.startsWith("image/");

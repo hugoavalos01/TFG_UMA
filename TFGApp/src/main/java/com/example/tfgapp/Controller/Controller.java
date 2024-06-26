@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -46,6 +45,10 @@ public class Controller {
         MEDIA_TYPE_MAP.put("zip", MediaType.APPLICATION_OCTET_STREAM);
     }
 
+    /**
+     *
+     * @return
+     */
     @GetMapping("/classified")
     public ResponseEntity<List<Map<String, String>>> listClassifiedFiles() {
         String bucketName = "clasificado";
@@ -57,8 +60,6 @@ public class Controller {
             for (String fileName : fileNames) {
                 Map<String, String> fileData = new HashMap<>();
                 String url = minioService.getPresignedUrl(bucketName, fileName);
-                // Eliminar la extensión del nombre de archivo
-                //String fileNameWithoutExtension = removeFileExtension(fileName);
                 fileData.put("fileName", fileName);
                 fileData.put("url", url);
                 fileDataList.add(fileData);
@@ -74,6 +75,10 @@ public class Controller {
         }
     }
 
+    /**
+     * Obtiene todas las imagenes que han sido clasificadas pero no han sido validadas aun
+     * @return
+     */
     @GetMapping("/noValidado")
     public ResponseEntity<List<Map<String, String>>> listSinValidarFiles() {
         String bucketName = "clasificado";
@@ -101,6 +106,11 @@ public class Controller {
         }
     }
 
+    /**
+     * Guarda en BBDD la validación de una imagen
+     * @param request
+     * @return
+     */
     @PostMapping("/validarImagen")
     public ResponseEntity<String> validarImagen(@RequestBody Map<String, String> request) {
         String fileName = request.get("fileName");
@@ -115,16 +125,6 @@ public class Controller {
         }
     }
 
-    // Método para eliminar la extensión de un nombre de archivo
-    private String removeFileExtension(String fileName) {
-        int lastIndexOfDot = fileName.lastIndexOf(".");
-        if (lastIndexOfDot != -1) {
-            return fileName.substring(0, lastIndexOfDot);
-        }
-        return fileName;
-    }
-
-
     /**
      * Sube un archivo al bucket de MinIO.
      *
@@ -136,7 +136,7 @@ public class Controller {
         String bucketName = "sin-clasificar"; // Nombre del cubo donde se almacenan las imágenes pendientes de clasificar
         String fileName = file.getOriginalFilename();
         minioService.uploadFile(bucketName, fileName, file);
-        return  "Archivo subido con éxito: " + fileName;
+        return "Archivo subido con éxito: " + fileName;
     }
 
     /**
@@ -198,22 +198,17 @@ public class Controller {
         }
     }
 
+    /**
+     * Comprueba si ya se han clasificado las imagenes
+     *
+     * @return
+     */
+
     @GetMapping("/moveImages/status")
     public ResponseEntity<String> getStatus() {
         boolean isComplete = scheduledTasks.isClasificacionCompletada();
         return ResponseEntity.ok(isComplete ? "Completado" : "En progreso");
     }
-
-    /**
-     * Guarda la información de una imagen en MongoDB.
-     *
-     * @param imagen Información de la imagen a guardar.
-     *               @PostMapping("/saveInfo")
-     *     public void save(@RequestBody Imagen imagen) {
-     *         imagenService.save(imagen);
-     *     }
-     */
-
 
     /**
      * Obtiene todos los registros de imágenes.
