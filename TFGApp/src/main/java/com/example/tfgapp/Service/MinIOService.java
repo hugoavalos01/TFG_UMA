@@ -5,6 +5,7 @@ import io.minio.errors.ErrorResponseException;
 import io.minio.errors.MinioException;
 import io.minio.http.Method;
 import io.minio.messages.Item;
+import okhttp3.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Esta clase de servicio proporciona métodos para cargar y descargar archivos en el almacenamiento MinIO.
@@ -103,12 +106,10 @@ public class MinIOService {
     /**
      * Sube un archivo al bucket especificado en el almacenamiento MinIO.
      *
-     * @param bucketName El nombre del bucket en el que se cargará el archivo.
      * @param fileName   El nombre que se le dará al archivo cargado.
      * @param file       El MultipartFile que contiene los datos del archivo a cargar.
      */
-    public void uploadFile(String bucketName, String fileName, MultipartFile file) {
-        if (bucketName.equals("sin-clasificar")) {
+    public void uploadFile(String fileName, MultipartFile file) {
             try {
                 // Comprobar si el archivo ya existe en el bucket "clasificado"
                 minioClient.statObject(StatObjectArgs.builder()
@@ -137,11 +138,10 @@ public class MinIOService {
                 System.out.println(e.getMessage());
                 return;
             }
-        }
         try {
             // Subir el archivo al bucket correspondiente
             minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucketName)
+                    .bucket("sin-clasificar")
                     .object(fileName)
                     .stream(file.getInputStream(), file.getSize(), -1)
                     .contentType(file.getContentType())
@@ -178,50 +178,6 @@ public class MinIOService {
             throw new RuntimeException("Error al descargar el archivo: " + e.getMessage());
         }
     }
-
-    /**
-     * Mueve la imagen de un bucket a otro
-     * @param sourceBucket
-     * @param destinationBucket
-     * @param fileName
-     * @throws IOException
-     */
-    public void moveImage(String fileName) throws IOException {
-        String sourceBucket = "sin-clasificar";
-        String destinationBucket = "clasificado";
-        try {
-            // Descargar la imagen del bucket de origen
-            InputStream inputStream = minioClient.getObject(
-                    GetObjectArgs.builder()
-                            .bucket(sourceBucket)
-                            .object(fileName)
-                            .build()
-            );
-
-            // Subir la imagen al bucket de destino
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(destinationBucket)
-                            .object(fileName)
-                            .stream(inputStream, inputStream.available(), -1)
-                            .build()
-            );
-
-            // Eliminar la imagen del bucket de origen
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
-                            .bucket(sourceBucket)
-                            .object(fileName)
-                            .build()
-            );
-
-            System.out.println("Archivo movido de " + sourceBucket + " a " + destinationBucket + ": " + fileName);
-        } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al mover la imagen: " + e.getMessage());
-        }
-    }
-
     public String getPresignedUrl(String bucketName, String objectName) throws MinioException {
         try {
             // Genera una URL prefirmada válida para descargar el objeto

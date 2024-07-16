@@ -133,10 +133,20 @@ public class Controller {
      */
     @PostMapping("/uploadArchivo")
     public String uploadFile(@RequestParam("file") MultipartFile file) {
-        String bucketName = "sin-clasificar"; // Nombre del cubo donde se almacenan las imágenes pendientes de clasificar
         String fileName = file.getOriginalFilename();
-        minioService.uploadFile(bucketName, fileName, file);
+        minioService.uploadFile(fileName, file);
         return "Archivo subido con éxito: " + fileName;
+    }
+
+    /**
+     * Obtiene el tipo de archivo correspondiente a partir del nombre del archivo.
+     *
+     * @param fileName Nombre del archivo.
+     * @return Tipo de medio correspondiente al archivo.
+     */
+    private MediaType getMediaTypeForFileName(String fileName) {
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        return MEDIA_TYPE_MAP.getOrDefault(extension, MediaType.APPLICATION_OCTET_STREAM);
     }
 
     /**
@@ -223,14 +233,5 @@ public class Controller {
         return imagenService.findAll();
     }
 
-    /**
-     * Obtiene el tipo de archivo correspondiente a partir del nombre del archivo.
-     *
-     * @param fileName Nombre del archivo.
-     * @return Tipo de medio correspondiente al archivo.
-     */
-    private MediaType getMediaTypeForFileName(String fileName) {
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-        return MEDIA_TYPE_MAP.getOrDefault(extension, MediaType.APPLICATION_OCTET_STREAM);
-    }
+
 }
