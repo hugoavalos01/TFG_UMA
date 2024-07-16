@@ -40,7 +40,7 @@
     <button @click="clasificarImagenes" :disabled="clasificando" class="clasificar-bttn">
       <u>Clasificar imagenes ya</u>
     </button>
-    <div v-if="clasificando" style="margin-top: 20px;">Clasificando imagenes...</div>
+    <div v-if="clasificando || finalizado" style="margin-top: 20px;">{{ message }}</div>
   </div>
   <spinner-modal :show="loading" :message="message"></spinner-modal>
 </template>
@@ -58,6 +58,7 @@ export default {
       isDragOver: false,
       loading: false,
       clasificando: false,
+      finalizado: false,
       message: "Cargando",
     };
   },
@@ -109,13 +110,19 @@ export default {
       this.message = "Clasificando imágenes...";
       this.clasificando = true;
       try {
-        await uploadService.moveImages(); // Llamada inicial para iniciar la clasificación
-        this.pollStatus(); // Iniciar el polling del estado
+        const response = await uploadService.moveImages(); // Llamada inicial para iniciar la clasificación
+        if(response.data == "No hay imagenes por clasificar.") {
+          this.message = response.data;
+          this.clasificando = false;
+          this.finalizado = true;
+        } else {
+          this.pollStatus(); // Iniciar el polling del estado
+        }
       } catch (error) {
         console.error("Error al iniciar la clasificación:", error);
         this.message = "Error al iniciar la clasificación: " + error.message;
         this.clasificando = false;
-      }
+      } 
     },
     async pollStatus() {
       const checkStatus = async () => {
@@ -123,6 +130,7 @@ export default {
           const response = await uploadService.getStatus(); // Llamada al endpoint de estado
           if (response.data === "Completado") {
             this.message = "Imágenes clasificadas con éxito.";
+            this.finalizado = true;
             this.clasificando = false;
             clearInterval(this.pollInterval);
           }

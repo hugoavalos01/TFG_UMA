@@ -187,7 +187,10 @@ public class Controller {
      * @return ResponseEntity con un mensaje indicando el resultado de la operación.
      */
     @PostMapping("/moveImages")
-    public ResponseEntity<String> clasificar() {
+    public ResponseEntity<String> clasificar() throws Exception {
+        if(minioService.listFiles("sin-clasificar").isEmpty()) {
+            return ResponseEntity.ok("No hay imagenes por clasificar.");
+        }
         try {
             scheduledTasks.clasificarImagenesScheduled();
             return ResponseEntity.ok("Imágenes clasificadas con éxito.");

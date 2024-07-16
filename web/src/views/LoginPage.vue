@@ -98,15 +98,10 @@ export default {
           this.password
         );
         console.log("Registro exitoso: ", response);
-        // Almacena el token en Vuex
-        this.$store.commit("SET_TOKEN", response.token);
-        this.$store.commit("SET_USER", this.username);
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("username", this.username);
       } catch (error) {
         console.log("Error en el registro: ", error);
       } finally {
-        this.$router.push("/inicio");
+        this.login();
       }
     },
   },
