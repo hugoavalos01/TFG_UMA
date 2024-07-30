@@ -40,9 +40,9 @@
     <button @click="clasificarImagenes" :disabled="clasificando" class="clasificar-bttn">
       <u>Clasificar imagenes ya</u>
     </button>
-    <div v-if="clasificando || finalizado" style="margin-top: 20px;">{{ message }}</div>
+    <div v-if="clasificando || finalizado || resultadoSubida" style="margin-top: 20px;">{{ message }}</div>
   </div>
-  <spinner-modal :show="loading" :message="message"></spinner-modal>
+  <spinner-modal :show="loading" :message="messageModal"></spinner-modal>
 </template>
 
 <script>
@@ -60,6 +60,9 @@ export default {
       clasificando: false,
       finalizado: false,
       message: "Cargando",
+      resultadoSubida: false,
+      messageModal: null,
+
     };
   },
   mounted() {
@@ -93,8 +96,9 @@ export default {
         await uploadService
           .uploadFile(formData)
           .then((response) => {
-            this.message = "Cargando";
-            console.log("File uploaded successfully:", response.data);
+            this.messageModal = "Cargando";
+            this.resultadoSubida = true;
+            this.message = response.data;
           })
           .catch((error) => {
             console.error("Error uploading file:", error);
@@ -107,7 +111,7 @@ export default {
       }
     },
     async clasificarImagenes() {
-      this.message = "Clasificando imágenes...";
+      this.messageModal = "Clasificando imágenes...";
       this.clasificando = true;
       try {
         const response = await uploadService.moveImages(); // Llamada inicial para iniciar la clasificación
@@ -151,7 +155,7 @@ export default {
         const response = await uploadService.getStatus();
         if (response.data === "En progreso") {
           this.clasificando = true;
-          this.message = "Clasificando imágenes...";
+          this.messageModal = "Clasificando imágenes...";
           this.pollStatus(); // Iniciar el polling del estado
         } else {
           this.clasificando = false;

@@ -134,8 +134,8 @@ public class Controller {
     @PostMapping("/uploadArchivo")
     public String uploadFile(@RequestParam("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        minioService.uploadFile(fileName, file);
-        return "Archivo subido con éxito: " + fileName;
+        String resultado = minioService.uploadFile(fileName, file);
+        return resultado;
     }
 
     /**
