@@ -23,7 +23,8 @@ export class NumberToClassUtil {
         20: "Meloncillo",
         21: "Garduña",
         22: "Tejón",
-        23: "Nutria"
+        23: "Nutria",
+        24: "Imagen vacía"
         
     };
 
