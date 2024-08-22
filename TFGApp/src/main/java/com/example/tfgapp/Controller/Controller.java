@@ -4,7 +4,6 @@ import com.example.tfgapp.Entity.Imagen;
 import com.example.tfgapp.Service.MinIOService;
 import com.example.tfgapp.Service.ImagenService;
 import com.example.tfgapp.Utils.ScheduledTasks;
-import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,40 +32,15 @@ public class Controller {
     private final MinIOService minioService;
     private final ScheduledTasks scheduledTasks;
 
-    // Mapa que mapea extensiones de archivo a tipos de archivos.
-    private static final Map<String, MediaType> MEDIA_TYPE_MAP = new HashMap<>();
-
-    static {
-        MEDIA_TYPE_MAP.put("jpg", MediaType.IMAGE_JPEG);
-        MEDIA_TYPE_MAP.put("jpeg", MediaType.IMAGE_JPEG);
-        MEDIA_TYPE_MAP.put("png", MediaType.IMAGE_PNG);
-        MEDIA_TYPE_MAP.put("zip", MediaType.APPLICATION_OCTET_STREAM);
-    }
-
     /**
      *
      * @return
      */
     @GetMapping("/classified")
     public ResponseEntity<List<Map<String, String>>> listClassifiedFiles() {
-        String bucketName = "clasificado";
-        List<Map<String, String>> fileDataList = new ArrayList<>();
-
         try {
-            List<String> fileNames = imagenService.findAllValidadas();
-
-            for (String fileName : fileNames) {
-                Map<String, String> fileData = new HashMap<>();
-                String url = minioService.getPresignedUrl(bucketName, fileName);
-                fileData.put("fileName", fileName);
-                fileData.put("url", url);
-                fileDataList.add(fileData);
-            }
-
+            List<Map<String, String>> fileDataList = imagenService.getFilesData(true);
             return ResponseEntity.ok(fileDataList);
-        } catch (MinioException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
@@ -76,30 +48,14 @@ public class Controller {
     }
 
     /**
-     * Obtiene todas las imagenes que han sido clasificadas pero no han sido validadas aun
+     * Obtiene todas las imagenes que han sido clasificadas pero no han sido validadas aún
      * @return
      */
     @GetMapping("/noValidado")
     public ResponseEntity<List<Map<String, String>>> listSinValidarFiles() {
-        String bucketName = "clasificado";
-        List<Map<String, String>> fileDataList = new ArrayList<>();
-
         try {
-            // Obtener los nombres de archivo de MongoDB donde validado es false
-            List<String> unvalidatedFileNames = imagenService.findAllSinValidar();
-
-            for (String fileName : unvalidatedFileNames) {
-                Map<String, String> fileData = new HashMap<>();
-                String url = minioService.getPresignedUrl(bucketName, fileName);
-                fileData.put("fileName", fileName);
-                fileData.put("url", url);
-                fileDataList.add(fileData);
-            }
-
+            List<Map<String, String>> fileDataList = imagenService.getFilesData(false);
             return ResponseEntity.ok(fileDataList);
-        } catch (MinioException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(null);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
@@ -154,7 +110,7 @@ public class Controller {
             InputStream fileInputStream = minioService.downloadFile(bucketName, fileName);
             byte[] fileBytes = fileInputStream.readAllBytes();
 
-            // Obtener información asociada al nombre del archivo (por ejemplo, de MongoDB)
+            // Obtener información asociada al nombre del archivo
             String fileMetadata = imagenService.writeMetadataToFile(fileName);
 
             // Crear un archivo de texto con la información y los bytes del archivo original

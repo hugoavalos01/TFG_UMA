@@ -111,7 +111,7 @@ export default {
       }
     },
     async clasificarImagenes() {
-      this.messageModal = "Clasificando imágenes...";
+      this.message = "Clasificando imágenes...";
       this.clasificando = true;
       try {
         const response = await uploadService.moveImages(); // Llamada inicial para iniciar la clasificación
@@ -155,7 +155,7 @@ export default {
         const response = await uploadService.getStatus();
         if (response.data === "En progreso") {
           this.clasificando = true;
-          this.messageModal = "Clasificando imágenes...";
+          this.message = "Clasificando imágenes...";
           this.pollStatus(); // Iniciar el polling del estado
         } else {
           this.clasificando = false;

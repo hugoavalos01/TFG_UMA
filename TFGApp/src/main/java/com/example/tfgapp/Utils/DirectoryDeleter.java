@@ -9,13 +9,11 @@ public class DirectoryDeleter {
     public static void borrarContenidoDirectorio(String ruta) throws IOException {
         Path path = Paths.get(ruta);
 
-        // Verifica si el directorio existe
         if (!Files.exists(path) || !Files.isDirectory(path)) {
             System.out.println("El directorio no existe o no es un directorio: " + ruta);
             return;
         }
 
-        // Usa Files.walkFileTree para borrar el contenido del directorio
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

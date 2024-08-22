@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,36 +28,15 @@ public class ImagenService {
         borrarDirectorios();
 
         try {
-            // Listar las imágenes en el bucket "sin-clasificar"
             List<String> fileNames = minioService.listFiles(sourceBucket);
 
             for (String fileName : fileNames) {
-                // Descargar la imagen del bucket "sin-clasificar"
-                String filePath = minioService.downloadTempFile(sourceBucket, fileName);
-
-                // Ruta al intérprete de Python del entorno virtual
-                String pythonInterpreter = ".\\yolov5\\tfg_env\\Scripts\\python.exe";
-
-                // Ruta al script Python
-                String pythonScript = ".\\yolov5\\detect.py";
-
-                // Comando para ejecutar el script Python con el intérprete del entorno virtual
-                List<String> pythonCommand = Arrays.asList(pythonInterpreter, pythonScript,
-                        "--weights", "yolov5/total_model.pt", "--img", "1024", "--name", "total", "--project", "yolov5/results/",
-                        "--save-txt", "--save-conf", "--source", "yolov5/images/", "--max-det", "1", "--conf-thres", "0.5"                );
-
-                // Ejecutar el comando para ejecutar el script Python
-                String commandOutput = executeCommand(pythonCommand);
-
-                minioService.deleteFile(fileName);
-                minioService.uploadClassifiedFile(fileName);
-
-                // Guardar información de la imagen en el repositorio
-                saveClassifiedImagen(fileName);
-                borrarDirectorios();
+                processFile(sourceBucket, fileName);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to classify images", e);
+        } finally {
+            borrarDirectorios();
         }
     }
 
@@ -73,6 +51,36 @@ public class ImagenService {
         DirectoryDeleter directoryDeleter = new DirectoryDeleter();
         directoryDeleter.borrarContenidoDirectorio(rutaImagenes);
         directoryDeleter.borrarContenidoDirectorio(rutaResultados);
+    }
+
+    private void processFile(String sourceBucket, String fileName) throws Exception {
+        minioService.downloadTempFile(sourceBucket, fileName);
+
+        executePythonScript();
+
+        minioService.deleteFile(fileName);
+        minioService.uploadClassifiedFile(fileName);
+
+        saveClassifiedImagen(fileName);
+    }
+
+    private void executePythonScript() {
+        String pythonInterpreter = ".\\yolov5\\tfg_env\\Scripts\\python.exe";
+        String pythonScript = ".\\yolov5\\detect.py";
+
+        List<String> pythonCommand = Arrays.asList(
+                pythonInterpreter, pythonScript,
+                "--weights", "yolov5/total_model.pt",
+                "--img", "1024",
+                "--name", "total",
+                "--project", "yolov5/results/",
+                "--save-txt", "--save-conf",
+                "--source", "yolov5/images/",
+                "--max-det", "1",
+                "--conf-thres", "0.5"
+        );
+
+        executeCommand(pythonCommand);
     }
 
     /**
@@ -134,6 +142,29 @@ public class ImagenService {
         return imagenRepository.findAll();
     }
 
+    // Método común para obtener archivos clasificados, según criterio de validación
+    public List<Map<String, String>> getFilesData(boolean isValidado) throws Exception {
+        String bucketName = "clasificado";
+        List<Map<String, String>> fileDataList = new ArrayList<>();
+        List<String> fileNames;
+
+        if (isValidado) {
+            fileNames = findAllValidadas(); // Archivos validados
+        } else {
+            fileNames = findAllSinValidar(); // Archivos sin validar
+        }
+
+        for (String fileName : fileNames) {
+            Map<String, String> fileData = new HashMap<>();
+            String url = minioService.getPresignedUrl(bucketName, fileName);
+            fileData.put("fileName", fileName);
+            fileData.put("url", url);
+            fileDataList.add(fileData);
+        }
+
+        return fileDataList;
+    }
+
     public List<String> findAllSinValidar() {
         List<Imagen> unvalidatedImages = imagenRepository.findAllByValidado("false");
         return unvalidatedImages.stream()
@@ -160,9 +191,6 @@ public class ImagenService {
             // Manejar el caso en el que no se encuentra la información asociada al nombre del archivo
             throw new RuntimeException("No se encontró información para el archivo: " + fileName);
         }
-    }
-    public Imagen findByPathMinIO(String fileName) {
-        return imagenRepository.findByPathMinIO(fileName);
     }
     public void actualizarEstadoValidacion(String fileName, String validado) {
         Imagen imagen = imagenRepository.findByPathMinIO(fileName);

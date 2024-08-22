@@ -108,48 +108,19 @@ public class MinIOService {
      * @param file       El MultipartFile que contiene los datos del archivo a cargar.
      */
     public String uploadFile(String fileName, MultipartFile file) {
-            try {
-                // Comprobar si el archivo ya existe en el bucket "clasificado"
-                minioClient.statObject(StatObjectArgs.builder()
-                        .bucket("clasificado")
-                        .object(fileName)
-                        .build());
-
-                // Si llegamos aquí, significa que el archivo ya existe, por lo que no se podrá clasificar luego
-                return "El archivo ya está clasificado: " + fileName;
-            } catch (ErrorResponseException e) {
-                if (e.errorResponse().code().equals("NoSuchKey")) {
-                    // Si el error es NoSuchKey, significa que el archivo no existe, y podemos continuar
-                    System.out.println("El archivo no existe en el bucket 'clasificado'. Procediendo a subir.");
-                } else {
-                    // Si el error es otro, lanzar la excepción
-                    e.printStackTrace();
-                    System.out.println("Error al verificar el archivo en el bucket 'clasificado': " + e.getMessage());
-                    return "Error al verificar el archivo en el bucket 'clasificado'" + e.getMessage();
-                }
-            } catch (MinioException e) {
-                e.printStackTrace();
-                System.out.println("Error al verificar el archivo en el bucket 'clasificado': " + e.getMessage());
-                return "Error al verificar el archivo en el bucket 'clasificado'" + e.getMessage();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println(e.getMessage());
-                return "Error al verificar el archivo en el bucket 'clasificado'" + e.getMessage();
-            }
         try {
-            // Subir el archivo al bucket correspondiente
-            minioClient.putObject(PutObjectArgs.builder()
-                    .bucket("sin-clasificar")
-                    .object(fileName)
-                    .stream(file.getInputStream(), file.getSize(), -1)
-                    .contentType(file.getContentType())
-                    .build());
-            System.out.println("Archivo subido con éxito: " + fileName);
-            return "El archivo se ha subido con éxito:" + fileName;
+            // Comprobar si el archivo ya existe
+            if (fileExistsInBucket("clasificado", fileName)) {
+                return "El archivo ya está clasificado: " + fileName;
+            }
+
+            // Subir el archivo si no existe
+            uploadFileToBucket("sin-clasificar", fileName, file);
+            return "El archivo se ha subido con éxito: " + fileName;
+
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al subir el archivo: " + e.getMessage());
-            return "Error al subir el archivo: " + e.getMessage();
+            return "Error al procesar el archivo: " + e.getMessage();
         }
     }
 
@@ -190,6 +161,44 @@ public class MinIOService {
             );
         } catch (Exception e) {
             throw new MinioException("Error al generar URL prefirmada para el objeto: " + e.getMessage());
+        }
+    }
+
+    private boolean fileExistsInBucket(String bucketName, String fileName) throws Exception {
+        try {
+            // Verificar si el archivo ya existe en el bucket
+            minioClient.statObject(StatObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .build());
+            return true; // El archivo existe
+
+        } catch (ErrorResponseException e) {
+            if (e.errorResponse().code().equals("NoSuchKey")) {
+                System.out.println("El archivo no existe en el bucket '" + bucketName + "'. Procediendo a subir.");
+                return false; // El archivo no existe
+            } else {
+                // Si es otro error, propagar la excepción
+                throw e;
+            }
+        }
+    }
+
+    private void uploadFileToBucket(String bucketName, String fileName, MultipartFile file) throws Exception {
+        try {
+            // Subir el archivo al bucket especificado
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .stream(file.getInputStream(), file.getSize(), -1)
+                    .contentType(file.getContentType())
+                    .build());
+            System.out.println("Archivo subido con éxito: " + fileName);
+
+        } catch (Exception e) {
+            // Manejar cualquier excepción que ocurra durante la subida
+            System.out.println("Error al subir el archivo: " + e.getMessage());
+            throw e; // Propagar la excepción
         }
     }
 }

@@ -21,8 +21,12 @@ const uploadService = {
     },
     validarImagen: (fileName, validado)  => {
         return instance.post('/validarImagen', { fileName, validado });
-      }
-
+      },
+      descargarImagen: (fileName) => {
+        return instance.get(`/downloadFile/${fileName}`, {
+            responseType: 'blob'
+        });
+    }
 };
 
 export default uploadService;
