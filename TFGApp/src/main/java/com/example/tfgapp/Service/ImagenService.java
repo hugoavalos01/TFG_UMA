@@ -41,6 +41,23 @@ public class ImagenService {
     }
 
     /**
+     * Descarga el archivo, ejecuta el script de clasificación, lo borra de MinIO y lo sube clasificado, por último guarda la información en BBDD
+     * @param sourceBucket
+     * @param fileName
+     * @throws Exception
+     */
+    private void processFile(String sourceBucket, String fileName) throws Exception {
+        minioService.downloadTempFile(sourceBucket, fileName);
+
+        executePythonScript();
+
+        minioService.deleteFile(fileName);
+        minioService.uploadClassifiedFile(fileName);
+
+        saveClassifiedImagen(fileName);
+    }
+
+    /**
      * Borra el contenido los directorios especificados
      * @throws IOException
      */
@@ -53,16 +70,7 @@ public class ImagenService {
         directoryDeleter.borrarContenidoDirectorio(rutaResultados);
     }
 
-    private void processFile(String sourceBucket, String fileName) throws Exception {
-        minioService.downloadTempFile(sourceBucket, fileName);
 
-        executePythonScript();
-
-        minioService.deleteFile(fileName);
-        minioService.uploadClassifiedFile(fileName);
-
-        saveClassifiedImagen(fileName);
-    }
 
     private void executePythonScript() {
         String pythonInterpreter = ".\\yolov5\\tfg_env\\Scripts\\python.exe";
@@ -192,6 +200,12 @@ public class ImagenService {
             throw new RuntimeException("No se encontró información para el archivo: " + fileName);
         }
     }
+
+    /**
+     * Guarda en BBDD la validación del usuario
+     * @param fileName
+     * @param validado
+     */
     public void actualizarEstadoValidacion(String fileName, String validado) {
         Imagen imagen = imagenRepository.findByPathMinIO(fileName);
         if (imagen != null) {

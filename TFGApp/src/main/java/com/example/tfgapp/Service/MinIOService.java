@@ -102,7 +102,7 @@ public class MinIOService {
     }
 
     /**
-     * Sube un archivo al bucket especificado en el almacenamiento MinIO.
+     * Sube un archivo al bucket sin-clasificar en el almacenamiento MinIO.
      *
      * @param fileName   El nombre que se le dará al archivo cargado.
      * @param file       El MultipartFile que contiene los datos del archivo a cargar.
