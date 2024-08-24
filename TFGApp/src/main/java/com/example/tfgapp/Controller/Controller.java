@@ -1,6 +1,7 @@
 package com.example.tfgapp.Controller;
 
 import com.example.tfgapp.Entity.Imagen;
+import com.example.tfgapp.Service.FileService;
 import com.example.tfgapp.Service.MinIOService;
 import com.example.tfgapp.Service.ImagenService;
 import com.example.tfgapp.Utils.ScheduledTasks;
@@ -12,12 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import static com.example.tfgapp.Utils.FileUtil.createTextFile;
-import static com.example.tfgapp.Utils.FileUtil.createZipFile;
 
 /**
  * Controlador para la gestión de archivos en la aplicación.
@@ -31,6 +28,7 @@ public class Controller {
     private final ImagenService imagenService;
     private final MinIOService minioService;
     private final ScheduledTasks scheduledTasks;
+    private final FileService fileService;
 
     /**
      *
@@ -103,28 +101,16 @@ public class Controller {
      */
     @GetMapping("/downloadFile/{fileName}")
     public ResponseEntity<byte[]> downloadFile(@PathVariable String fileName) {
-        String bucketName = "clasificado"; // Nombre del cubo de donde se descargan los archivos
-
         try {
-            // Descargar la imagen del bucket
-            InputStream fileInputStream = minioService.downloadFile(bucketName, fileName);
-            byte[] fileBytes = fileInputStream.readAllBytes();
-
-            // Obtener información asociada al nombre del archivo
-            String fileMetadata = imagenService.writeMetadataToFile(fileName);
-
-            // Crear un archivo de texto con la información y los bytes del archivo original
-            byte[] textBytes = createTextFile(fileMetadata);
-
-            // Combinar los bytes del archivo de texto y los bytes del archivo original en un solo archivo ZIP
-            byte[] zipBytes = createZipFile(fileName, fileBytes, textBytes);
+            // Genera el archivo ZIP con la imagen y la informacion
+            byte[] zipBytes = fileService.generateZipWithImageAndInfo(fileName);
 
             // Configurar las cabeceras de la respuesta para la descarga del archivo ZIP
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDispositionFormData("attachment", fileName + ".zip");
 
-            // Devolver la respuesta con el archivo ZIP
+            // Respuesta con el archivo ZIP
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(zipBytes);
