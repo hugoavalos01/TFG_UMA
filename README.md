@@ -1,4 +1,4 @@
-# Trabajo de Fin de Grado
+# Guía de instalación
 
 Este repositorio contiene el código fuente para una aplicación de detección de animales. A continuación, se proporciona una guía para la instalación y configuración del proyecto en un entorno local.
 
