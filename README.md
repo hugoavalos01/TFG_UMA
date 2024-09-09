@@ -1,6 +1,6 @@
-# Proyecto de Detección de Objetos
+# Trabajo de Fin de Grado
 
-Este repositorio contiene el código fuente para una aplicación de detección de objetos. A continuación, se proporciona una guía para la instalación y configuración del proyecto en un entorno local.
+Este repositorio contiene el código fuente para una aplicación de detección de animales. A continuación, se proporciona una guía para la instalación y configuración del proyecto en un entorno local.
 
 ## Requisitos
 
