@@ -38,7 +38,7 @@
       </div>
     </div>
     <button @click="clasificarImagenes" :disabled="clasificando" class="clasificar-bttn">
-      <u>Clasificar imagenes ya</u>
+      <u>Clasificar imagenes</u>
     </button>
     <div v-if="clasificando || finalizado || resultadoSubida" style="margin-top: 20px;">{{ message }}</div>
   </div>
