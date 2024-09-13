@@ -111,7 +111,7 @@ export default {
 <style scoped>
 .container {
   padding: 20px;
-  display: flex; /* Agregado */
+  display: flex;
   align-items: center;
   justify-content: center;
 }

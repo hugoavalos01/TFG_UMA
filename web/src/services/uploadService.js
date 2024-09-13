@@ -30,15 +30,3 @@ const uploadService = {
 };
 
 export default uploadService;
-
-
-
-// const downloadService = {
-//     downloadFile: (fileName) => {
-//         return instance.get(`/download/${fileName}`);
-//     },
-// };
-
-
-
-

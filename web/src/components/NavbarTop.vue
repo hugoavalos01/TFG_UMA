@@ -67,8 +67,8 @@ body {
   position: fixed;
   width: 100%;
   top: 0;
-  left: 0; /* Asegúrate de que el navbar se alinee a la izquierda */
-  box-sizing: border-box; /* Incluye el padding y el border en el ancho total */
+  left: 0; 
+  box-sizing: border-box; 
   z-index: 1000;
 }
 

@@ -212,7 +212,7 @@ export default {
   display: flex;
   justify-content: space-between;
   width: 30%;
-  margin-top: 20px; /* Espacio entre el área de soltar y los botones */
+  margin-top: 20px; 
 }
 
 .choose-file-button {
@@ -222,11 +222,11 @@ export default {
   cursor: pointer;
   font-size: 16px;
   background-color: white;
-  transition: background-color 0.3s; /* Transición para el color de fondo */
-  border: 2px solid #3a9b76; /* Borde para el botón "Escoger un archivo" */
+  transition: background-color 0.3s;
+  border: 2px solid #3a9b76; 
 }
 .choose-file-button:hover {
-  background-color: rgb(240, 240, 240); /* Color de fondo al pasar el ratón */
+  background-color: rgb(240, 240, 240); 
 }
 .submit-button {
   width: 40%;
@@ -234,12 +234,12 @@ export default {
   padding: 10px 20px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s; /* Transición para el color de fondo */
+  transition: background-color 0.3s; 
   background-color: #42b983;
 }
 
 .submit-button:hover {
-  background-color: #3a9b76; /* Color de fondo al pasar el ratón */
+  background-color: #3a9b76; 
 }
 
 .submit-button:disabled {
@@ -258,6 +258,6 @@ export default {
   cursor: not-allowed;
 }
 .clasificar-bttn:hover {
-  color: #3a9b76; /* Color de fondo al pasar el ratón */
+  color: #3a9b76; 
 }
 </style>

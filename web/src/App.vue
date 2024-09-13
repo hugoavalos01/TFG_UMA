@@ -31,6 +31,6 @@ export default {
 }
 
 .content {
-  margin-top: 60px; /* Ajusta este valor según la altura de tu navbar */
+  margin-top: 60px;
 }
 </style>

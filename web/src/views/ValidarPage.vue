@@ -238,16 +238,15 @@ export default {
 }
 
 .correccion-input {
-  padding: 5px 10px; /* Reducido el padding para hacerlo más pequeño */
+  padding: 5px 10px;
   border: 1px solid #ced4da;
   border-radius: 5px;
   font-size: 12px;
-  width: 300px; /* Ancho original */
+  width: 300px; 
   box-sizing: border-box;
   transition: border-color 0.3s ease;
 }
 
-/* Agregado el nuevo estilo para el input cuando está en foco */
 .correccion-input:focus {
   outline: none;
   border-color: #007bff;
