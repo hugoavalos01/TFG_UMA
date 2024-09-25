@@ -12,8 +12,8 @@
         Para comenzar, haga clic en el botón "Clasificar" en la barra de navegación.
       </p>
       <p>
-        Puede subir imágenes individuales o un archivo ZIP comprimido con varias imágenes para una clasificación eficiente.
-        <br/>Además, tendrá la opción de validar las clasificaciones realizadas por la IA, asegurando la precisión y mejorando continuamente el modelo.
+        Actualmente sólo puede subir imágenes de forma individual, pero puede iniciar la clasificación de todas a la vez.
+        <br/>Además, tendrá la opción de validar las clasificaciones realizadas por la IA, asegurando la precisión y ayudando a mejorar el modelo en el futuro.
       </p>
     </div>
     <div class="image-comparison">

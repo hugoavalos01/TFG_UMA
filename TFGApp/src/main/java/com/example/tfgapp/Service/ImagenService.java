@@ -35,8 +35,6 @@ public class ImagenService {
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to classify images", e);
-        } finally {
-            borrarDirectorios();
         }
     }
 
@@ -55,6 +53,7 @@ public class ImagenService {
         minioService.uploadClassifiedFile(fileName);
 
         saveClassifiedImagen(fileName);
+        borrarDirectorios();
     }
 
     /**
