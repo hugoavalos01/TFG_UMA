@@ -31,7 +31,6 @@
               class="correccion-input custom-input"
             >
             <option disabled value="">Escoge la clase correcta y haz click en 'Validar'</option>
-            <option value="20">Imagen vacía</option>
               <option
                 v-for="(clase, index) in clases"
                 :key="index"

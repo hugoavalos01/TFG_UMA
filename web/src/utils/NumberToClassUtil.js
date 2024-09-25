@@ -1,5 +1,6 @@
 export class NumberToClassUtil {
     static numberToClassMap = {
+        24: "Imagen vacía",
         0: "Vaca",
         1: "Cabra doméstica",
         2: "Ciervo",
@@ -23,8 +24,7 @@ export class NumberToClassUtil {
         20: "Meloncillo",
         21: "Garduña",
         22: "Tejón",
-        23: "Nutria",
-        24: "Imagen vacía"
+        23: "Nutria"
         
     };
 
